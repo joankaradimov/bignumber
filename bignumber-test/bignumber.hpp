@@ -7,8 +7,8 @@
 #define MIN_SHORT_VAL 0x8000
 #define MAX_SHORT_VAL 0x7fff
 
-typedef unsigned short hword;
-typedef unsigned long word;
+typedef unsigned __int16 hword;
+typedef unsigned __int32 word;
 
 union _word
 {
