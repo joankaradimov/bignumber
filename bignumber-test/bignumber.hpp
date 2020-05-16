@@ -23,12 +23,52 @@ union _word
 class LongNumber
 {
 public:
-  LongNumber();
-  LongNumber(int);
-  LongNumber(unsigned long);
-  LongNumber(const char*);
-  LongNumber(const LongNumber&);
-  ~LongNumber();
+    LongNumber() {
+        size = 1;
+        buff = (hword*)malloc(sizeof(hword));
+        *buff = 0;
+    }
+
+    LongNumber(int num) {
+        _word w;
+        w.whole = num;
+        size = sizeof(word) / sizeof(hword);
+        buff = (hword*)malloc(size * sizeof(hword));
+        buff[0] = w.half.second;
+        buff[1] = w.half.first;
+        trim();
+    }
+
+    LongNumber(unsigned long num) {
+        _word w;
+        w.whole = num;
+        size = 1 + sizeof(word) / sizeof(hword);
+        buff = (hword*)malloc(size * sizeof(hword));
+        buff[0] = w.half.second;
+        buff[1] = w.half.first;
+        buff[2] = 0;
+        trim();
+    }
+
+    LongNumber(const char* str) {
+        LongNumber t;
+        t = str;
+        size = t.size;
+        buff = (hword*)malloc(size * sizeof(hword));
+        for (int i = 0; i < size; ++i) buff[i] = t.buff[i];
+    }
+
+    LongNumber(const LongNumber& lnum) {
+        int i;
+        size = lnum.size;
+        buff = (hword*)malloc(size * sizeof(hword));
+        for (i = 0; i < size; ++i) buff[i] = lnum.buff[i];
+        trim();
+    }
+
+    ~LongNumber() {
+        free(buff);
+    }
 
   const LongNumber operator- () const;
   const LongNumber& operator+ () const;
@@ -96,59 +136,6 @@ private:
   hword* buff;
   int size;
 };
-
-LongNumber::LongNumber()
-{
-  size=1;
-  buff=(hword*)malloc(sizeof(hword));
-  *buff=0;
-}
-
-LongNumber::LongNumber(int num)
-{
-  _word w;
-  w.whole=num;
-  size=sizeof(word)/sizeof(hword);
-  buff=(hword*)malloc(size*sizeof(hword));
-  buff[0]=w.half.second;
-  buff[1]=w.half.first;
-  trim();
-}
-
-LongNumber::LongNumber(unsigned long num)
-{
-  _word w;
-  w.whole=num;
-  size=1+sizeof(word)/sizeof(hword);
-  buff=(hword*)malloc(size*sizeof(hword));
-  buff[0]=w.half.second;
-  buff[1]=w.half.first;
-  buff[2]=0;
-  trim();
-}
-
-LongNumber::LongNumber(const char* str)
-{
-  LongNumber t;
-  t=str;
-  size=t.size;
-  buff=(hword*)malloc( size*sizeof(hword) );
-  for (int i=0; i<size; ++i) buff[i]=t.buff[i];
-}
-
-LongNumber::LongNumber(const LongNumber& lnum)
-{
-  int i;
-  size=lnum.size;
-  buff=(hword*)malloc(size*sizeof(hword));
-  for (i=0; i<size; ++i) buff[i]=lnum.buff[i];
-  trim();
-}
-
-LongNumber::~LongNumber()
-{
-  free(buff);
-}
 
 const LongNumber LongNumber::operator- () const
 {
