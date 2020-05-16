@@ -22,16 +22,16 @@ union _word
   };
 };
 
-class LongNumber
+class BigInteger
 {
 public:
-    LongNumber() {
+    BigInteger() {
         size = 1;
         buff = (hword*)malloc(sizeof(hword));
         *buff = 0;
     }
 
-    LongNumber(int num) {
+    BigInteger(int num) {
         _word w;
         w.whole = num;
         size = sizeof(word) / sizeof(hword);
@@ -41,7 +41,7 @@ public:
         trim();
     }
 
-    LongNumber(unsigned long num) {
+    BigInteger(unsigned long num) {
         _word w;
         w.whole = num;
         size = 1 + sizeof(word) / sizeof(hword);
@@ -52,15 +52,15 @@ public:
         trim();
     }
 
-    LongNumber(const char* str) {
-        LongNumber t;
+    BigInteger(const char* str) {
+        BigInteger t;
         t = str;
         size = t.size;
         buff = (hword*)malloc(size * sizeof(hword));
         for (int i = 0; i < size; ++i) buff[i] = t.buff[i];
     }
 
-    LongNumber(const LongNumber& lnum) {
+    BigInteger(const BigInteger& lnum) {
         int i;
         size = lnum.size;
         buff = (hword*)malloc(size * sizeof(hword));
@@ -68,62 +68,62 @@ public:
         trim();
     }
 
-    ~LongNumber() {
+    ~BigInteger() {
         free(buff);
     }
 
-  const LongNumber operator- () const;
-  const LongNumber& operator+ () const;
+  const BigInteger operator- () const;
+  const BigInteger& operator+ () const;
 
-  LongNumber operator+ (const LongNumber&) const;
-  LongNumber operator+ (int) const;
+  BigInteger operator+ (const BigInteger&) const;
+  BigInteger operator+ (int) const;
 
-  LongNumber operator- (const LongNumber&) const;
-  LongNumber operator- (int) const;
+  BigInteger operator- (const BigInteger&) const;
+  BigInteger operator- (int) const;
 
-  LongNumber operator* (const LongNumber&) const;
-  LongNumber operator* (int) const;
-  LongNumber operator* (hword) const;
+  BigInteger operator* (const BigInteger&) const;
+  BigInteger operator* (int) const;
+  BigInteger operator* (hword) const;
 
-  LongNumber operator/ (const LongNumber&) const;
-  LongNumber operator/ (int) const;
-  LongNumber operator/ (hword r) const;
+  BigInteger operator/ (const BigInteger&) const;
+  BigInteger operator/ (int) const;
+  BigInteger operator/ (hword r) const;
 
-  LongNumber operator% (const LongNumber&) const;
-  LongNumber operator% (int) const;
-  LongNumber operator% (hword r) const;
+  BigInteger operator% (const BigInteger&) const;
+  BigInteger operator% (int) const;
+  BigInteger operator% (hword r) const;
 
-  friend LongNumber operator+ (int, const LongNumber&);
-  friend LongNumber operator- (int, const LongNumber&);
-  friend LongNumber operator* (int, const LongNumber&);
+  friend BigInteger operator+ (int, const BigInteger&);
+  friend BigInteger operator- (int, const BigInteger&);
+  friend BigInteger operator* (int, const BigInteger&);
 
-  int operator < (const LongNumber&) const;
-  int operator > (const LongNumber&) const;
-  int operator <= (const LongNumber&) const;
-  int operator >= (const LongNumber&) const;
-  int operator == (const LongNumber&) const;
-  int operator != (const LongNumber&) const;
+  int operator < (const BigInteger&) const;
+  int operator > (const BigInteger&) const;
+  int operator <= (const BigInteger&) const;
+  int operator >= (const BigInteger&) const;
+  int operator == (const BigInteger&) const;
+  int operator != (const BigInteger&) const;
 
-  const LongNumber& operator= (const LongNumber&);
-  const LongNumber& operator= (int);
-  const LongNumber& operator= (unsigned);
-  const LongNumber& operator= (const char*);
+  const BigInteger& operator= (const BigInteger&);
+  const BigInteger& operator= (int);
+  const BigInteger& operator= (unsigned);
+  const BigInteger& operator= (const char*);
 
   hword operator[] (int) const;
   explicit operator int() const;
 
-  LongNumber operator++ (int);
-  LongNumber& operator++ ();
-  LongNumber operator-- (int);
-  LongNumber& operator-- ();
+  BigInteger operator++ (int);
+  BigInteger& operator++ ();
+  BigInteger operator-- (int);
+  BigInteger& operator-- ();
 
-  LongNumber operator<< (unsigned shift) const;
-  LongNumber operator>> (unsigned shift) const;
-  const LongNumber operator<<= (unsigned shift);
-  const LongNumber operator>>= (unsigned shift);
+  BigInteger operator<< (unsigned shift) const;
+  BigInteger operator>> (unsigned shift) const;
+  const BigInteger operator<<= (unsigned shift);
+  const BigInteger operator>>= (unsigned shift);
 
-  friend std::ostream& operator<<(std::ostream&, const LongNumber&);
-  friend std::istream& operator>>(std::istream&, LongNumber&);
+  friend std::ostream& operator<<(std::ostream&, const BigInteger&);
+  friend std::istream& operator>>(std::istream&, BigInteger&);
 
   void printbin() const;
   void printhex() const;
@@ -139,25 +139,25 @@ private:
   int size;
 };
 
-const LongNumber LongNumber::operator- () const
+const BigInteger BigInteger::operator- () const
 {
-  LongNumber res(*this);
+  BigInteger res(*this);
   --res;
   for (int i=0; i<res.size; ++i)
     res.buff[i]=~res.buff[i];
   return res;
 }
 
-const LongNumber& LongNumber::operator+ () const
+const BigInteger& BigInteger::operator+ () const
 {
   return (*this);
 }
 
-LongNumber LongNumber::operator+ (const LongNumber& r) const
+BigInteger BigInteger::operator+ (const BigInteger& r) const
 {
   int i, m=max(this->size, r.size);
   int s=this->sign()!=r.sign();
-  LongNumber res;
+  BigInteger res;
   res.SetSize(m+1-s);
   _word t;
   for (i=0; i<m-s; ++i)
@@ -171,36 +171,36 @@ LongNumber LongNumber::operator+ (const LongNumber& r) const
   return res;
 }
 
-LongNumber LongNumber::operator+ (int r) const
+BigInteger BigInteger::operator+ (int r) const
 {
-  LongNumber temp(r);
+  BigInteger temp(r);
   return *this+temp;
 }
 
-LongNumber operator+ (int l, const LongNumber& r)
+BigInteger operator+ (int l, const BigInteger& r)
 {
   return r+l;
 }
 
-LongNumber LongNumber::operator- (const LongNumber& r) const
+BigInteger BigInteger::operator- (const BigInteger& r) const
 {
   return (*this)+(-r);
 }
 
-LongNumber LongNumber::operator- (int r) const
+BigInteger BigInteger::operator- (int r) const
 {
-  LongNumber temp(r);
+  BigInteger temp(r);
   return *this-temp;
 }
 
-LongNumber operator- (int l, const LongNumber& r)
+BigInteger operator- (int l, const BigInteger& r)
 {
   return (-r)+l;
 }
 
-LongNumber LongNumber::operator* (hword r) const
+BigInteger BigInteger::operator* (hword r) const
 {
-  LongNumber res, l_positive, t;
+  BigInteger res, l_positive, t;
   bool s=sign();
   if (s) l_positive=-(*this);
   else l_positive=(*this);
@@ -213,9 +213,9 @@ LongNumber LongNumber::operator* (hword r) const
   return s ? -res : res;
 }
 
-LongNumber LongNumber::operator* (const LongNumber& lnum) const
+BigInteger BigInteger::operator* (const BigInteger& lnum) const
 {
-  LongNumber l, r, res;
+  BigInteger l, r, res;
   sign() ? l=-(*this) : l=(*this);
   lnum.sign() ? r=-lnum : r=lnum;
   int s=sign()^lnum.sign();
@@ -226,52 +226,52 @@ LongNumber LongNumber::operator* (const LongNumber& lnum) const
   return s ? -res : res;
 }
 
-LongNumber LongNumber::operator* (int r) const
+BigInteger BigInteger::operator* (int r) const
 {
-  LongNumber temp(r);
+  BigInteger temp(r);
   return (*this)*temp;
 }
 
-LongNumber operator* (int l, const LongNumber& r)
+BigInteger operator* (int l, const BigInteger& r)
 {
   return r*l;
 }
 
-int LongNumber::operator< (const LongNumber& r) const
+int BigInteger::operator< (const BigInteger& r) const
 {
-  LongNumber temp=(*this)-r;
+  BigInteger temp=(*this)-r;
   return temp.sign();
 }
 
-int LongNumber::operator> (const LongNumber& r) const
+int BigInteger::operator> (const BigInteger& r) const
 {
-  LongNumber temp=r-(*this);
+  BigInteger temp=r-(*this);
   return temp.sign();
 }
 
-int LongNumber::operator<= (const LongNumber& r) const
+int BigInteger::operator<= (const BigInteger& r) const
 {
   return !( (*this)>r );
 }
 
-int LongNumber::operator>= (const LongNumber& r) const
+int BigInteger::operator>= (const BigInteger& r) const
 {
   return !( (*this)<r );
 }
 
-int LongNumber::operator== (const LongNumber& r) const
+int BigInteger::operator== (const BigInteger& r) const
 {
-  LongNumber temp=(*this)-r;
+  BigInteger temp=(*this)-r;
   for (int i=0; i<temp.size; ++i) if (temp.buff[i]) return 0;
   return 1;
 }
 
-int LongNumber::operator!= (const LongNumber& r) const
+int BigInteger::operator!= (const BigInteger& r) const
 {
   return !( (*this)==r );
 }
 
-const LongNumber& LongNumber::operator= (const LongNumber& lnum)
+const BigInteger& BigInteger::operator= (const BigInteger& lnum)
 {
   int i;
   if (this!=&lnum)
@@ -285,7 +285,7 @@ const LongNumber& LongNumber::operator= (const LongNumber& lnum)
   return *this;
 }
 
-const LongNumber& LongNumber::operator= (int num)
+const BigInteger& BigInteger::operator= (int num)
 {
   _word w;
   w.whole=num;
@@ -298,7 +298,7 @@ const LongNumber& LongNumber::operator= (int num)
   return *this;
 }
 
-const LongNumber& LongNumber::operator= (unsigned num)
+const BigInteger& BigInteger::operator= (unsigned num)
 {
   _word w;
   w.whole=num;
@@ -312,9 +312,9 @@ const LongNumber& LongNumber::operator= (unsigned num)
   return *this;
 }
 
-const LongNumber& LongNumber::operator= (const char* str)
+const BigInteger& BigInteger::operator= (const char* str)
 {
-  LongNumber mult=1;
+  BigInteger mult=1;
   int s=0, len, val;
   (*this)=0;
   if ( *str=='+' )
@@ -340,14 +340,14 @@ const LongNumber& LongNumber::operator= (const char* str)
   return *this;
 }
 
-hword LongNumber::operator[] (int pos) const
+hword BigInteger::operator[] (int pos) const
 {
   if (pos<0) return 0;
   if (pos>=size) return oldest(this->buff[size-1]) ?~0:0;
   return this->buff[pos];
 }
 
-LongNumber::operator int() const
+BigInteger::operator int() const
 {
   _word t;
   if ( size>2 ) // Ако не се събира в int
@@ -371,14 +371,14 @@ LongNumber::operator int() const
   return t.whole;
 }
 
-LongNumber LongNumber::operator++ (int)
+BigInteger BigInteger::operator++ (int)
 {
-  LongNumber old=*this;
+  BigInteger old=*this;
   ++(*this);
   return old;
 }
 
-LongNumber& LongNumber::operator++ ()
+BigInteger& BigInteger::operator++ ()
 {
   _word t;
   int i, s=sign();
@@ -399,14 +399,14 @@ LongNumber& LongNumber::operator++ ()
   return *this;
 }
 
-LongNumber LongNumber::operator-- (int)
+BigInteger BigInteger::operator-- (int)
 {
-  LongNumber old=*this;
+  BigInteger old=*this;
   --(*this);
   return old;
 }
 
-LongNumber& LongNumber::operator-- ()
+BigInteger& BigInteger::operator-- ()
 {
   _word t;
   int i, s=sign();
@@ -427,11 +427,11 @@ LongNumber& LongNumber::operator-- ()
   return *this;
 }
 
-LongNumber LongNumber::operator<< (unsigned shift) const
+BigInteger BigInteger::operator<< (unsigned shift) const
 {
   int i, hword_shift=shift/(sizeof(hword)*8), bit_shift=shift%(sizeof(hword)*8);
   _word t;
-  LongNumber res;
+  BigInteger res;
   res.SetSize(size+hword_shift+1);
   for (i=0; i<=size; ++i)
   {
@@ -443,12 +443,12 @@ LongNumber LongNumber::operator<< (unsigned shift) const
   return res;
 }
 
-LongNumber LongNumber::operator>> (unsigned shift) const
+BigInteger BigInteger::operator>> (unsigned shift) const
 {
   int i, hword_shift=shift/(sizeof(hword)*8), bit_shift=shift%(sizeof(hword)*8);
   if (hword_shift>=size) return sign()?~0:0;
   _word t;
-  LongNumber res;
+  BigInteger res;
   res.SetSize(size-hword_shift);
   for (i=0; i<res.size; ++i)
   {
@@ -460,22 +460,22 @@ LongNumber LongNumber::operator>> (unsigned shift) const
   return res;
 }
 
-const LongNumber LongNumber::operator <<= (unsigned shift)
+const BigInteger BigInteger::operator <<= (unsigned shift)
 {
   *this=(*this)<<shift;
   return *this;
 }
 
-const LongNumber LongNumber::operator >>= (unsigned shift)
+const BigInteger BigInteger::operator >>= (unsigned shift)
 {
   *this=(*this)>>shift;
   return *this;
 }
 
-LongNumber LongNumber::operator/ (hword r) const
+BigInteger BigInteger::operator/ (hword r) const
 {
   int i, s=sign(); 
-  LongNumber res, l;
+  BigInteger res, l;
   s ? l=-(*this) : l=(*this);
   _word t;
   res.SetSize(l.size);
@@ -489,32 +489,32 @@ LongNumber LongNumber::operator/ (hword r) const
   return s ? -res : res;
 }
 
-LongNumber LongNumber::operator% (hword r) const
+BigInteger BigInteger::operator% (hword r) const
 {
   return (*this)-( ((*this)/r)*r );
 }
 
-LongNumber LongNumber::operator/ (int r) const
+BigInteger BigInteger::operator/ (int r) const
 {
-  LongNumber temp=r;
+  BigInteger temp=r;
   return (*this)/temp;
 }
 
-LongNumber LongNumber::operator% (int r) const
+BigInteger BigInteger::operator% (int r) const
 {
-  LongNumber temp=r;
+  BigInteger temp=r;
   return (*this)%temp;
 }
 
-LongNumber LongNumber::operator/ (const LongNumber& lnum) const // Работи, но бавно
+BigInteger BigInteger::operator/ (const BigInteger& lnum) const // Работи, но бавно
 {
-  LongNumber l, r, res=0;
+  BigInteger l, r, res=0;
   sign()?l=-(*this):l=(*this);
   lnum.sign()?r=-lnum:r=lnum;
   int s=sign()^lnum.sign();
 
   int i;
-  LongNumber j, t;
+  BigInteger j, t;
   while (l>=r)
   {
     t=r;
@@ -534,14 +534,14 @@ LongNumber LongNumber::operator/ (const LongNumber& lnum) const // Работи, но ба
   return s?-res:res;
 }
 
-LongNumber LongNumber::operator% (const LongNumber& r) const
+BigInteger BigInteger::operator% (const BigInteger& r) const
 {
   return (*this)-(((*this)/r)*r );
 }
 
-std::ostream& operator<<(std::ostream& os, const LongNumber& ln)
+std::ostream& operator<<(std::ostream& os, const BigInteger& ln)
 {
-  LongNumber ln_positive;
+  BigInteger ln_positive;
   if ( ln.sign() )
   {
     ln_positive=-ln;
@@ -565,8 +565,8 @@ std::ostream& operator<<(std::ostream& os, const LongNumber& ln)
   }
   for (i=0; ; ++i)
   {
-    buff[i]='0'+(ln_positive%LongNumber::IO_BASE).buff[0];
-    ln_positive=ln_positive/LongNumber::IO_BASE;
+    buff[i]='0'+(ln_positive%BigInteger::IO_BASE).buff[0];
+    ln_positive=ln_positive/BigInteger::IO_BASE;
     if (ln_positive==0) break;
   }
   for ( ; i>=0; --i)
@@ -578,7 +578,7 @@ std::ostream& operator<<(std::ostream& os, const LongNumber& ln)
   return os;
 }
 
-std::istream& operator>>(std::istream& is, LongNumber& ln)
+std::istream& operator>>(std::istream& is, BigInteger& ln)
 {
 
   ln=0;
@@ -597,7 +597,7 @@ std::istream& operator>>(std::istream& is, LongNumber& ln)
   }
   for(;;)
   {
-    ln=ln*LongNumber::IO_BASE;
+    ln=ln*BigInteger::IO_BASE;
     ln=ln+(ch-'0');
     ch=is.peek();
     if ( ch<'0' || ch>'9' || isspace(ch) ) break;
@@ -607,7 +607,7 @@ std::istream& operator>>(std::istream& is, LongNumber& ln)
   return is;
 }
 
-void LongNumber::SetSize(int new_size)
+void BigInteger::SetSize(int new_size)
 {
   hword sign=oldest(this->buff[size-1])?~0:0;
   int i;
@@ -616,7 +616,7 @@ void LongNumber::SetSize(int new_size)
   size=new_size;
 }
 
-void LongNumber::trim()
+void BigInteger::trim()
 {
   hword s=sign()?~0:0;
   int i;
@@ -627,12 +627,12 @@ void LongNumber::trim()
   SetSize(size-i);
 }
 
-bool LongNumber::sign() const
+bool BigInteger::sign() const
 {
   return oldest(this->buff[size-1]);
 }
 
-void LongNumber::printhex() const
+void BigInteger::printhex() const
 {
   int i;
   for (i=size-1; i>=0; --i)
@@ -641,7 +641,7 @@ void LongNumber::printhex() const
   }
 }
 
-void LongNumber::printbin() const
+void BigInteger::printbin() const
 {
   int i, mask;
   for (i=size-1; i>=0; --i)
