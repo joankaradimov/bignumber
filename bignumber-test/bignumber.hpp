@@ -1,5 +1,3 @@
-// Йоан Владимиров Карадимов, група 3, фн:43976, домашна работа No 3
-
 #include <stdlib.h>
 #include <iostream>
 
@@ -25,80 +23,77 @@ union _word
 class LongNumber
 {
 public:
-  LongNumber();                  // Подразбиращ се конструктор (инициализира числото с 0)
-  LongNumber(int);               // Конструктор по цяло число
+  LongNumber();
+  LongNumber(int);
   LongNumber(unsigned long);
-  LongNumber(const char*);       // Конструктор по символен низ (char*)
-  LongNumber(const LongNumber&); // Конструктор за копиране
-  ~LongNumber();                 // Деструктор
+  LongNumber(const char*);
+  LongNumber(const LongNumber&);
+  ~LongNumber();
 
   const LongNumber operator- () const;
   const LongNumber& operator+ () const;
 
-  LongNumber operator+ (const LongNumber&) const; // Оператори за събиране, изваждане и умножение на дълго число с дълго число (+, -, *)
+  LongNumber operator+ (const LongNumber&) const;
   LongNumber operator- (const LongNumber&) const;
   LongNumber operator* (const LongNumber&) const;
 
-  LongNumber operator+ (const int) const;         // Оператори за събиране, изваждане и умножение на дълго число с нормално цяло число int (+, -, *)
+  LongNumber operator+ (const int) const;
   LongNumber operator- (const int) const;
   LongNumber operator* (const int) const;
-  LongNumber operator* (const hword) const;       // Оператор за умножение на дълго число с hword (една положителна цифра в дадената бройна система).
+  LongNumber operator* (const hword) const;
 
-  friend LongNumber operator+ (const int, const LongNumber&);  // Оператори за събиране, изваждане и умножение на нормално цяло число int с дълго (+, -, *)
+  friend LongNumber operator+ (const int, const LongNumber&);
   friend LongNumber operator- (const int, const LongNumber&);
   friend LongNumber operator* (const int, const LongNumber&);
 
-  int operator < (LongNumber&);     // Оператори за сравнение на дълги числа (==, != , <, >, <=, >=)
+  int operator < (LongNumber&);
   int operator > (LongNumber&);
   int operator <= (LongNumber&);
   int operator >= (LongNumber&);
   int operator == (LongNumber&);
   int operator != (LongNumber&);
 
-  const LongNumber& operator= (const LongNumber&);  // Оператори за присвояване (=)
+  const LongNumber& operator= (const LongNumber&);
   const LongNumber& operator= (const int);
   const LongNumber& operator= (const unsigned);
   const LongNumber& operator= (const char*);
 
-  hword operator[] (int) const; // Оператор за индексиране ([int]) който връща цифрата на подадената позиция
-  operator int();               // Оператор за преобразуване към int (връща максималния брой цифри от числото)
+  hword operator[] (int) const;
+  operator int();
 
-  LongNumber operator++ (int);   // Оператори за инкрементиране и декрементиране (++ и --) които увеличават / намаляват числото с 1. Съответно в префиксна и постфиксна форма
+  LongNumber operator++ (int);
   LongNumber& operator++ ();
   LongNumber operator-- (int);
   LongNumber& operator-- ();
 
-  const LongNumber operator<< (unsigned shift) const;    // Оператор за изместване наляво (<<) умножаващ числото по 2
-  const LongNumber operator>> (unsigned shift) const;    // Оператор за изместване надясно (>>) разделящ числото на 2
-  const LongNumber operator<<= (unsigned shift);         // Оператор за изместване наляво (<<=) умножаващ числото по 2
-  const LongNumber operator>>= (unsigned shift);         // Оператор за изместване надясно (>>=) разделящ числото на 2
+  const LongNumber operator<< (unsigned shift) const;
+  const LongNumber operator>> (unsigned shift) const;
+  const LongNumber operator<<= (unsigned shift);
+  const LongNumber operator>>= (unsigned shift);
 
-  const LongNumber operator/ (const int) const;           // Оператор за делене на дълго число с нормално цяло число int (/)
-  const LongNumber operator% (const int) const;           // Оператор за остатък от деленето на дълго число с нормално цяло число int (%)
-  const LongNumber operator/ (const LongNumber&) const;   // Оператор за делене на дълго число с дълго число (/)
-  const LongNumber operator% (const LongNumber&) const;   // Оператор за остатък от деленето на дълго число с дълго число (%)
+  const LongNumber operator/ (const int) const;
+  const LongNumber operator% (const int) const;
+  const LongNumber operator/ (const LongNumber&) const;
+  const LongNumber operator% (const LongNumber&) const;
   const LongNumber operator/ (const hword r) const;
   const LongNumber operator% (const hword r) const;
-                                                          // Намиране на корен от дълго число. Няма...
 
-  friend std::ostream& operator<<(std::ostream&, const LongNumber&);  // Оператори за вход и изход от потоци (>> и <<)
+  friend std::ostream& operator<<(std::ostream&, const LongNumber&);
   friend std::istream& operator>>(std::istream&, LongNumber&);
 
-  void printbin() const;  // Печата числото в двоичен код
-  void printhex() const;  // Печата числото в шестнадесетичен код
+  void printbin() const;
+  void printhex() const;
 
-  static const hword IO_BASE=10;  // За съжаление работи само за 10
+  static const hword IO_BASE=10;
 private:
 
-  void SetSize(int new_size);     // Разширява (скъсява) размера на буфера
-  void trim();                    // Маха излишните цифри в началото
-  bool sign() const;              // 'true' за отрицателно
+  void SetSize(int new_size);
+  void trim();
+  bool sign() const;
 
   hword* buff;
   int size;
 };
-
-////////// Конструктори и деструктор //////////
 
 LongNumber::LongNumber()
 {
@@ -153,9 +148,6 @@ LongNumber::~LongNumber()
   free(buff);
 }
 
-
-////////// Оператори +/- //////////
-
 const LongNumber LongNumber::operator- () const
 {
   LongNumber res(*this);
@@ -169,9 +161,6 @@ const LongNumber& LongNumber::operator+ () const
 {
   return (*this);
 }
-
-
-////////// Оператори за събиране //////////
 
 LongNumber LongNumber::operator+ (const LongNumber& r) const
 {
@@ -202,9 +191,6 @@ LongNumber operator+ (const int l, const LongNumber& r)
   return r+l;
 }
 
-
-////////// Оператори за изваждане //////////
-
 LongNumber LongNumber::operator- (const LongNumber& r) const
 {
   return (*this)+(-r);
@@ -220,9 +206,6 @@ LongNumber operator- (const int l, const LongNumber& r)
 {
   return (-r)+l;
 }
-
-
-////////// Оператори за умножение //////////
 
 LongNumber LongNumber::operator* (const hword r) const
 {
@@ -263,9 +246,6 @@ LongNumber operator* (const int l, const LongNumber& r)
   return r*l;
 }
 
-
-////////// Релации //////////
-
 int LongNumber::operator< (LongNumber& r)
 {
   LongNumber temp=(*this)-r;
@@ -299,9 +279,6 @@ int LongNumber::operator!= (LongNumber& r)
 {
   return !( (*this)==r );
 }
-
-
-////////// Оператори за присвояване //////////
 
 const LongNumber& LongNumber::operator= (const LongNumber& lnum)
 {
@@ -372,9 +349,6 @@ const LongNumber& LongNumber::operator= (const char* str)
   return *this;
 }
 
-
-////////// Разни //////////
-
 hword LongNumber::operator[] (int pos) const
 {
   if (pos<0) return 0;
@@ -405,8 +379,6 @@ LongNumber::operator int()
   }
   return t.whole;
 }
-
-///////// Оператори за итериране //////////
 
 LongNumber LongNumber::operator++ (int)
 {
@@ -464,8 +436,6 @@ LongNumber& LongNumber::operator-- ()
   return *this;
 }
 
-////////// Побитови отмествания //////////
-
 const LongNumber LongNumber::operator<< (unsigned shift) const
 {
   int i, hword_shift=shift/(sizeof(hword)*8), bit_shift=shift%(sizeof(hword)*8);
@@ -510,8 +480,6 @@ const LongNumber LongNumber::operator >>= (unsigned shift)
   *this=(*this)>>shift;
   return *this;
 }
-
-////////// Оператори за деление и деление по модул //////////
 
 const LongNumber LongNumber::operator/ (const hword r) const
 {
@@ -580,8 +548,6 @@ const LongNumber LongNumber::operator% (const LongNumber& r) const
   return (*this)-(((*this)/r)*r );
 }
 
-////////// Вход и изход от потоци //////////
-
 std::ostream& operator<<(std::ostream& os, const LongNumber& ln)
 {
   LongNumber ln_positive;
@@ -649,8 +615,6 @@ std::istream& operator>>(std::istream& is, LongNumber& ln)
   if (s) ln=-ln;
   return is;
 }
-
-////////// Други методи //////////
 
 void LongNumber::SetSize(int new_size)
 {
