@@ -24,6 +24,9 @@ TEST(TestConstruction, ConstructsFromStrings) {
 
     BigInteger c = "299792458";
     EXPECT_EQ(c, 299792458);
+
+    BigInteger bigger_than_int_64 = "1000000000000000000000";
+    EXPECT_EQ(bigger_than_int_64, "1000000000000000000000");
 }
 
 TEST(TestConstruction, ConstructsFromOtherBigIntegers) {
