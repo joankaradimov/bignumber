@@ -104,10 +104,66 @@ public:
   int operator == (const BigInteger&) const;
   int operator != (const BigInteger&) const;
 
-  const BigInteger& operator= (const BigInteger&);
-  const BigInteger& operator= (int);
-  const BigInteger& operator= (unsigned);
-  const BigInteger& operator= (const char*);
+    const BigInteger& operator=(const BigInteger& lnum) {
+        if (this != &lnum) {
+            size = lnum.size;
+            free(buff);
+            buff = (hword*)malloc(size * sizeof(hword));
+            for (int i = 0; i < size; ++i) buff[i] = lnum.buff[i];
+        }
+        trim();
+        return *this;
+    }
+
+    const BigInteger& BigInteger::operator=(int num) {
+        _word w;
+        w.whole = num;
+        size = 2;
+        free(buff);
+        buff = (hword*)malloc(size * sizeof(hword));
+        buff[0] = w.second_half;
+        buff[1] = w.first_half;
+        trim();
+        return *this;
+    }
+
+    const BigInteger& BigInteger::operator= (unsigned num) {
+        _word w;
+        w.whole = num;
+        size = 1 + sizeof(word) / sizeof(hword);
+        free(buff);
+        buff = (hword*)malloc(size * sizeof(hword));
+        buff[0] = w.second_half;
+        buff[1] = w.first_half;
+        buff[2] = 0;
+        trim();
+        return *this;
+    }
+
+    const BigInteger& BigInteger::operator= (const char* str) {
+        BigInteger mult = 1;
+        int s = 0, len, val;
+        (*this) = 0;
+
+        if (*str == '+') {
+            ++str;
+            s = 0;
+        }
+        else if (*str == '-') {
+            s = 1;
+            ++str;
+        }
+        for (len = 0; str[len]; ++len);
+        for (int i = len - 1; i >= 0; i--) {
+            if (str[i] < '0' || str[i]>'9') break;
+            val = str[i] - '0';
+            (*this) = (*this) + val * mult;
+            mult = mult * IO_BASE;
+        }
+        *this = s ? -(*this) : (*this);
+        trim();
+        return *this;
+    }
 
   hword operator[] (int) const;
   explicit operator int() const;
@@ -269,75 +325,6 @@ int BigInteger::operator== (const BigInteger& r) const
 int BigInteger::operator!= (const BigInteger& r) const
 {
   return !( (*this)==r );
-}
-
-const BigInteger& BigInteger::operator= (const BigInteger& lnum)
-{
-  int i;
-  if (this!=&lnum)
-  {
-    size=lnum.size;
-    free(buff);
-    buff=(hword*)malloc(size*sizeof(hword));
-    for (i=0; i<size; ++i) buff[i]=lnum.buff[i];
-  }
-  trim();
-  return *this;
-}
-
-const BigInteger& BigInteger::operator= (int num)
-{
-  _word w;
-  w.whole=num;
-  size=2;
-  free(buff);
-  buff=(hword*)malloc(size*sizeof(hword));
-  buff[0]=w.second_half;
-  buff[1]=w.first_half;
-  trim();
-  return *this;
-}
-
-const BigInteger& BigInteger::operator= (unsigned num)
-{
-  _word w;
-  w.whole=num;
-  size=1+sizeof(word)/sizeof(hword);
-  free(buff);
-  buff=(hword*)malloc(size*sizeof(hword));
-  buff[0]=w.second_half;
-  buff[1]=w.first_half;
-  buff[2]=0;
-  trim();
-  return *this;
-}
-
-const BigInteger& BigInteger::operator= (const char* str)
-{
-  BigInteger mult=1;
-  int s=0, len, val;
-  (*this)=0;
-  if ( *str=='+' )
-  {
-    ++str;
-    s=0;
-  }
-  else if ( *str=='-' )
-  {
-    s=1;
-    ++str;
-  }
-  for (len=0; str[len]; ++len);
-  for (int i=len-1; i>=0; i--)
-  {
-    if (str[i]<'0' || str[i]>'9') break;
-    val=str[i]-'0';
-    (*this)=(*this)+val*mult;
-    mult=mult*IO_BASE;
-  }
-  *this = s ? -(*this) : (*this);
-  trim();
-  return *this;
 }
 
 hword BigInteger::operator[] (int pos) const
