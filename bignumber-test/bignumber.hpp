@@ -59,7 +59,7 @@ public:
   const LongNumber& operator= (const char*);
 
   hword operator[] (int) const;
-  operator int();
+  explicit operator int();
 
   LongNumber operator++ (int);
   LongNumber& operator++ ();
