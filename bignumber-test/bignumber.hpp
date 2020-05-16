@@ -34,13 +34,22 @@ public:
   const LongNumber& operator+ () const;
 
   LongNumber operator+ (const LongNumber&) const;
-  LongNumber operator- (const LongNumber&) const;
-  LongNumber operator* (const LongNumber&) const;
-
   LongNumber operator+ (int) const;
+
+  LongNumber operator- (const LongNumber&) const;
   LongNumber operator- (int) const;
+
+  LongNumber operator* (const LongNumber&) const;
   LongNumber operator* (int) const;
   LongNumber operator* (hword) const;
+
+  LongNumber operator/ (const LongNumber&) const;
+  LongNumber operator/ (int) const;
+  LongNumber operator/ (hword r) const;
+
+  LongNumber operator% (const LongNumber&) const;
+  LongNumber operator% (int) const;
+  LongNumber operator% (hword r) const;
 
   friend LongNumber operator+ (int, const LongNumber&);
   friend LongNumber operator- (int, const LongNumber&);
@@ -70,13 +79,6 @@ public:
   LongNumber operator>> (unsigned shift) const;
   const LongNumber operator<<= (unsigned shift);
   const LongNumber operator>>= (unsigned shift);
-
-  LongNumber operator/ (int) const;
-  LongNumber operator% (int) const;
-  LongNumber operator/ (const LongNumber&) const;
-  LongNumber operator% (const LongNumber&) const;
-  LongNumber operator/ (hword r) const;
-  LongNumber operator% (hword r) const;
 
   friend std::ostream& operator<<(std::ostream&, const LongNumber&);
   friend std::istream& operator>>(std::istream&, LongNumber&);
