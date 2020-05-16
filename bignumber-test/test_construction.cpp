@@ -2,6 +2,11 @@
 
 #include "bignumber.hpp"
 
+TEST(TestConstruction, ConstructsZerosByDefault) {
+    BigInteger empty;
+    EXPECT_EQ(empty, 0);
+}
+
 TEST(TestConstruction, ConstructsFromIntegers) {
     BigInteger zero = 0;
     EXPECT_EQ(zero, 0);
