@@ -72,8 +72,17 @@ public:
         free(buff);
     }
 
-  const BigInteger operator- () const;
-  const BigInteger& operator+ () const;
+    BigInteger operator-() const {
+        BigInteger res(*this);
+        --res;
+        for (int i = 0; i < res.size; ++i)
+            res.buff[i] = ~res.buff[i];
+        return res;
+    }
+
+    const BigInteger& operator+ () const {
+        return (*this);
+    }
 
   BigInteger operator+ (const BigInteger&) const;
   BigInteger operator+ (int) const;
@@ -194,20 +203,6 @@ private:
   hword* buff;
   int size;
 };
-
-const BigInteger BigInteger::operator- () const
-{
-  BigInteger res(*this);
-  --res;
-  for (int i=0; i<res.size; ++i)
-    res.buff[i]=~res.buff[i];
-  return res;
-}
-
-const BigInteger& BigInteger::operator+ () const
-{
-  return (*this);
-}
 
 BigInteger BigInteger::operator+ (const BigInteger& r) const
 {
