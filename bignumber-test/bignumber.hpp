@@ -89,23 +89,121 @@ public:
         return (*this);
     }
 
-  BigInteger operator+ (const BigInteger&) const;
-  BigInteger operator+ (int) const;
+    BigInteger operator+(const BigInteger& r) const {
+        int i, m = max(this->size, r.size);
+        int s = this->sign() != r.sign();
+        BigInteger res;
+        res.SetSize(m + 1 - s);
+        _word t;
+        for (i = 0; i < m - s; ++i) {
+            t.whole = (*this)[i] + r[i] + res[i];
+            res.buff[i] = t.second_half;
+            res.buff[i + 1] = t.first_half;
+        }
+        t.whole = (*this)[i] + r[i] + res[i];
+        res.buff[i] = t.second_half;
+        return res;
+    }
 
-  BigInteger operator- (const BigInteger&) const;
-  BigInteger operator- (int) const;
+    BigInteger operator+(int r) const {
+        return *this + BigInteger(r); // TODO: optimize
+    }
 
-  BigInteger operator* (const BigInteger&) const;
-  BigInteger operator* (int) const;
-  BigInteger operator* (hword) const;
+    BigInteger operator-(const BigInteger& r) const {
+        return (*this) + (-r);
+    }
 
-  BigInteger operator/ (const BigInteger&) const;
-  BigInteger operator/ (int) const;
-  BigInteger operator/ (hword r) const;
+    BigInteger operator-(int r) const {
+        return *this - BigInteger(r); // TODO: optimize
+    }
 
-  BigInteger operator% (const BigInteger&) const;
-  BigInteger operator% (int) const;
-  BigInteger operator% (hword r) const;
+    BigInteger operator*(const BigInteger& lnum) const {
+        BigInteger l, r, res;
+        sign() ? l = -(*this) : l = (*this);
+        lnum.sign() ? r = -lnum : r = lnum;
+        int s = sign() ^ lnum.sign();
+        for (int i = 0; i < r.size; i++) {
+            res = res + ((l * r[i]) << (i * sizeof(hword) * 8));
+        }
+        return s ? -res : res;
+    }
+
+    BigInteger operator*(int r) const {
+        return (*this) * BigInteger(r);
+    }
+
+    BigInteger operator*(hword r) const {
+        BigInteger res, l_positive, t;
+        bool s = sign();
+        if (s) l_positive = -(*this);
+        else l_positive = (*this);
+        res.SetSize(l_positive.size + 1);
+        for (int i = 0; i < l_positive.size; i++) {
+            t = (unsigned)(l_positive[i] * r);
+            res = res + (t << (i * sizeof(hword) * 8));
+        }
+        return s ? -res : res;
+    }
+
+    BigInteger operator/(const BigInteger& lnum) const {
+        // TODO: can this be optimized
+        BigInteger l, r, res = 0;
+        sign() ? l = -(*this) : l = (*this);
+        lnum.sign() ? r = -lnum : r = lnum;
+        int s = sign() ^ lnum.sign();
+
+        int i;
+        BigInteger j, t;
+        while (l >= r) {
+            t = r;
+            for (i = 0; l >= t; i++) t = t << (sizeof(hword) * 8);
+            t = t >> (sizeof(hword) * 8);
+            for (j = 0; l >= t; j++) l = l - t;
+            res = res + (j << ((i - 1) * sizeof(hword) * 8));
+        }
+
+        /*while (l>=0)
+        {
+          ++res;
+          l=l-r;
+        }
+        --res;*/
+
+        return s ? -res : res;
+    }
+
+    BigInteger operator/(int r) const {
+        return (*this) / BigInteger(r);
+    }
+
+    BigInteger operator/(hword r) const {
+        int s = sign();
+        BigInteger res, l;
+        s ? l = -(*this) : l = (*this);
+        _word t;
+        res.SetSize(l.size);
+        for (int i = l.size; i > 0; --i)
+        {
+            t.first_half = l[i];
+            t.second_half = l[i - 1];
+            res.buff[i - 1] = (hword)(t.whole / r);
+            l.buff[i - 1] = (hword)(t.whole % r);
+        }
+        return s ? -res : res;
+    }
+
+    BigInteger operator%(const BigInteger& r) const {
+        return (*this) - (((*this) / r) * r);
+    }
+
+    BigInteger operator%(int r) const {
+        return (*this) % BigInteger(r);
+    }
+
+    BigInteger operator%(hword r) const {
+        // TODO: optimize -- implement a divmod method and use it here
+        return (*this) - (((*this) / r) * r);
+    }
 
   friend BigInteger operator+ (int, const BigInteger&);
   friend BigInteger operator- (int, const BigInteger&);
@@ -209,83 +307,14 @@ private:
   int size;
 };
 
-BigInteger BigInteger::operator+ (const BigInteger& r) const
-{
-  int i, m=max(this->size, r.size);
-  int s=this->sign()!=r.sign();
-  BigInteger res;
-  res.SetSize(m+1-s);
-  _word t;
-  for (i=0; i<m-s; ++i)
-  {
-    t.whole=(*this)[i]+r[i]+res[i];
-    res.buff[i]=t.second_half;
-    res.buff[i+1]=t.first_half;
-  }
-  t.whole=(*this)[i]+r[i]+res[i];
-  res.buff[i]=t.second_half;
-  return res;
-}
-
-BigInteger BigInteger::operator+ (int r) const
-{
-  BigInteger temp(r);
-  return *this+temp;
-}
-
 BigInteger operator+ (int l, const BigInteger& r)
 {
   return r+l;
 }
 
-BigInteger BigInteger::operator- (const BigInteger& r) const
-{
-  return (*this)+(-r);
-}
-
-BigInteger BigInteger::operator- (int r) const
-{
-  BigInteger temp(r);
-  return *this-temp;
-}
-
 BigInteger operator- (int l, const BigInteger& r)
 {
   return (-r)+l;
-}
-
-BigInteger BigInteger::operator* (hword r) const
-{
-  BigInteger res, l_positive, t;
-  bool s=sign();
-  if (s) l_positive=-(*this);
-  else l_positive=(*this);
-  res.SetSize( l_positive.size+1 );
-  for (int i=0; i<l_positive.size; i++)
-  {
-    t= (unsigned)(l_positive[i] * r);
-    res=res+( t<< (i*sizeof(hword)*8) );
-  }
-  return s ? -res : res;
-}
-
-BigInteger BigInteger::operator* (const BigInteger& lnum) const
-{
-  BigInteger l, r, res;
-  sign() ? l=-(*this) : l=(*this);
-  lnum.sign() ? r=-lnum : r=lnum;
-  int s=sign()^lnum.sign();
-  for (int i=0; i<r.size; i++)
-  {
-    res=res + ( (l*r[i]) << (i*sizeof(hword)*8) );
-  }
-  return s ? -res : res;
-}
-
-BigInteger BigInteger::operator* (int r) const
-{
-  BigInteger temp(r);
-  return (*this)*temp;
 }
 
 BigInteger operator* (int l, const BigInteger& r)
@@ -457,73 +486,6 @@ const BigInteger BigInteger::operator >>= (unsigned shift)
 {
   *this=(*this)>>shift;
   return *this;
-}
-
-BigInteger BigInteger::operator/ (hword r) const
-{
-  int i, s=sign(); 
-  BigInteger res, l;
-  s ? l=-(*this) : l=(*this);
-  _word t;
-  res.SetSize(l.size);
-  for (i=l.size; i>0; --i)
-  {
-    t.first_half=l[i];
-    t.second_half=l[i-1];
-    res.buff[i-1]=(hword)(t.whole/r);
-    l.buff[i-1]=(hword)(t.whole%r);
-  }
-  return s ? -res : res;
-}
-
-BigInteger BigInteger::operator% (hword r) const
-{
-  return (*this)-( ((*this)/r)*r );
-}
-
-BigInteger BigInteger::operator/ (int r) const
-{
-  BigInteger temp=r;
-  return (*this)/temp;
-}
-
-BigInteger BigInteger::operator% (int r) const
-{
-  BigInteger temp=r;
-  return (*this)%temp;
-}
-
-BigInteger BigInteger::operator/ (const BigInteger& lnum) const // Работи, но бавно
-{
-  BigInteger l, r, res=0;
-  sign()?l=-(*this):l=(*this);
-  lnum.sign()?r=-lnum:r=lnum;
-  int s=sign()^lnum.sign();
-
-  int i;
-  BigInteger j, t;
-  while (l>=r)
-  {
-    t=r;
-    for (i=0; l>=t; i++) t=t<<( sizeof(hword)*8 );
-    t=t>>( sizeof(hword)*8 );
-    for (j=0; l>=t; j++) l=l-t;
-    res=res+( j<<((i-1)*sizeof(hword)*8) );
-  }
-
-  /*while (l>=0)
-  {
-    ++res;
-    l=l-r;
-  }
-  --res;*/
-  
-  return s?-res:res;
-}
-
-BigInteger BigInteger::operator% (const BigInteger& r) const
-{
-  return (*this)-(((*this)/r)*r );
 }
 
 std::ostream& operator<<(std::ostream& os, const BigInteger& ln)
