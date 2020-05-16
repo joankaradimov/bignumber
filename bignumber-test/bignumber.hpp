@@ -582,7 +582,7 @@ std::ostream& operator<<(std::ostream& os, const LongNumber& ln)
   {
     os<<buff[i];
   }
-  delete buff;
+  delete[] buff;
 
   return os;
 }
