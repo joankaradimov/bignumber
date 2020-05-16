@@ -15,9 +15,9 @@ union _word
   word whole;
   struct
   {
-    hword second;
-    hword first;
-  } half;
+    hword second_half;
+    hword first_half;
+  };
 };
 
 class LongNumber
@@ -34,8 +34,8 @@ public:
         w.whole = num;
         size = sizeof(word) / sizeof(hword);
         buff = (hword*)malloc(size * sizeof(hword));
-        buff[0] = w.half.second;
-        buff[1] = w.half.first;
+        buff[0] = w.second_half;
+        buff[1] = w.first_half;
         trim();
     }
 
@@ -44,8 +44,8 @@ public:
         w.whole = num;
         size = 1 + sizeof(word) / sizeof(hword);
         buff = (hword*)malloc(size * sizeof(hword));
-        buff[0] = w.half.second;
-        buff[1] = w.half.first;
+        buff[0] = w.second_half;
+        buff[1] = w.first_half;
         buff[2] = 0;
         trim();
     }
@@ -161,11 +161,11 @@ LongNumber LongNumber::operator+ (const LongNumber& r) const
   for (i=0; i<m-s; ++i)
   {
     t.whole=(*this)[i]+r[i]+res[i];
-    res.buff[i]=t.half.second;
-    res.buff[i+1]=t.half.first;
+    res.buff[i]=t.second_half;
+    res.buff[i+1]=t.first_half;
   }
   t.whole=(*this)[i]+r[i]+res[i];
-  res.buff[i]=t.half.second;
+  res.buff[i]=t.second_half;
   return res;
 }
 
@@ -290,8 +290,8 @@ const LongNumber& LongNumber::operator= (int num)
   size=2;
   free(buff);
   buff=(hword*)malloc(size*sizeof(hword));
-  buff[0]=w.half.second;
-  buff[1]=w.half.first;
+  buff[0]=w.second_half;
+  buff[1]=w.first_half;
   trim();
   return *this;
 }
@@ -303,8 +303,8 @@ const LongNumber& LongNumber::operator= (unsigned num)
   size=1+sizeof(word)/sizeof(hword);
   free(buff);
   buff=(hword*)malloc(size*sizeof(hword));
-  buff[0]=w.half.second;
-  buff[1]=w.half.first;
+  buff[0]=w.second_half;
+  buff[1]=w.first_half;
   buff[2]=0;
   trim();
   return *this;
@@ -352,19 +352,19 @@ LongNumber::operator int() const
   {
     if ( sign() ) // Aко е отрицателно и не се събира в int
     {
-      t.half.first=MIN_SHORT_VAL;
-      t.half.second=0;
+      t.first_half=MIN_SHORT_VAL;
+      t.second_half=0;
     }
     else // Aко е пололжително и не се събира в int
     {
-      t.half.first=MAX_SHORT_VAL;
-      t.half.second=~0;
+      t.first_half=MAX_SHORT_VAL;
+      t.second_half=~0;
     }
   }
   else // Ако се събира в int
   {
-    t.half.first=(*this)[1];
-    t.half.second=(*this)[0];
+    t.first_half=(*this)[1];
+    t.second_half=(*this)[0];
   }
   return t.whole;
 }
@@ -383,8 +383,8 @@ LongNumber& LongNumber::operator++ ()
   for (i=0; i<size; ++i)
   {
     t.whole=(*this)[i]+1;
-    buff[i]=t.half.second;
-    if (t.half.first==0)
+    buff[i]=t.second_half;
+    if (t.first_half==0)
     {
       if ( buff[size-1]==MIN_SHORT_VAL )
       {
@@ -411,8 +411,8 @@ LongNumber& LongNumber::operator-- ()
   for (i=0; i<size; ++i)
   {
     t.whole=(*this)[i]-1;
-    buff[i]=t.half.second;
-    if (t.half.first==0)
+    buff[i]=t.second_half;
+    if (t.first_half==0)
     {
       if ( buff[size-1]==MAX_SHORT_VAL )
       {
@@ -433,10 +433,10 @@ LongNumber LongNumber::operator<< (unsigned shift) const
   res.SetSize(size+hword_shift+1);
   for (i=0; i<=size; ++i)
   {
-    t.half.first=(*this)[size-i];
-    t.half.second=(*this)[size-i-1];
+    t.first_half=(*this)[size-i];
+    t.second_half=(*this)[size-i-1];
     t.whole<<=bit_shift;
-    res.buff[res.size-1-i]=t.half.first;
+    res.buff[res.size-1-i]=t.first_half;
   }
   return res;
 }
@@ -450,10 +450,10 @@ LongNumber LongNumber::operator>> (unsigned shift) const
   res.SetSize(size-hword_shift);
   for (i=0; i<res.size; ++i)
   {
-    t.half.first=(*this)[size-i];
-    t.half.second=(*this)[size-i-1];
+    t.first_half=(*this)[size-i];
+    t.second_half=(*this)[size-i-1];
     t.whole>>=bit_shift;
-    res.buff[res.size-1-i]=t.half.second;
+    res.buff[res.size-1-i]=t.second_half;
   }
   return res;
 }
@@ -479,8 +479,8 @@ LongNumber LongNumber::operator/ (hword r) const
   res.SetSize(l.size);
   for (i=l.size; i>0; --i)
   {
-    t.half.first=l[i];
-    t.half.second=l[i-1];
+    t.first_half=l[i];
+    t.second_half=l[i-1];
     res.buff[i-1]=(hword)(t.whole/r);
     l.buff[i-1]=(hword)(t.whole%r);
   }
