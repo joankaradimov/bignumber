@@ -14,12 +14,12 @@ typedef unsigned __int32 word;
 
 union _word
 {
-  word whole;
-  struct
-  {
-    hword second_half;
-    hword first_half;
-  };
+    word whole;
+    struct
+    {
+        hword second_half;
+        hword first_half;
+    };
 };
 
 class BigInteger
@@ -529,15 +529,15 @@ private:
 };
 
 template <typename T> BigInteger operator+(T l, const BigInteger& r) {
-  return r + l;
+    return r + l;
 }
 
 template <typename T> BigInteger operator-(T l, const BigInteger& r) {
-  return (-r) + l;
+    return (-r) + l;
 }
 
 template <typename T> BigInteger operator*(T l, const BigInteger& r) {
-  return r * l;
+    return r * l;
 }
 
 template <typename T> BigInteger operator/(T l, const BigInteger& r) {
