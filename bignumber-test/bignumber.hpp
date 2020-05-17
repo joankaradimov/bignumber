@@ -295,8 +295,34 @@ public:
         return *this;
     }
 
-  hword operator[] (int) const;
-  explicit operator int() const;
+    hword operator[] (int pos) const {
+        if (pos < 0) return 0;
+        if (pos >= size) return oldest(this->buff[size - 1]) ? ~0 : 0;
+        return this->buff[pos];
+    }
+
+    explicit operator int() const {
+        _word t;
+        if (size > 2) // Ако не се събира в int
+        {
+            if (sign()) // Aко е отрицателно и не се събира в int
+            {
+                t.first_half = MIN_SHORT_VAL;
+                t.second_half = 0;
+            }
+            else // Aко е пололжително и не се събира в int
+            {
+                t.first_half = MAX_SHORT_VAL;
+                t.second_half = ~0;
+            }
+        }
+        else // Ако се събира в int
+        {
+            t.first_half = (*this)[1];
+            t.second_half = (*this)[0];
+        }
+        return t.whole;
+    }
 
   BigInteger operator++ (int);
   BigInteger& operator++ ();
@@ -311,18 +337,46 @@ public:
   friend std::ostream& operator<<(std::ostream&, const BigInteger&);
   friend std::istream& operator>>(std::istream&, BigInteger&);
 
-  void printbin() const;
-  void printhex() const;
+    void printbin() const {
+        for (int i = size - 1; i >= 0; --i) {
+            // TODO: use simpler iteration
+            for (int mask = MIN_SHORT_VAL; mask; mask >>= 1) {
+                std::cout << ((buff[i] & mask) ? 1 : 0);
+            }
+        }
+    }
 
-  static const hword IO_BASE=10;
+    void printhex() const {
+        for (int i = size - 1; i >= 0; --i) {
+            std::cout << std::hex << buff[i];
+        }
+    }
+
+    static const hword IO_BASE=10;
 private:
 
-  void SetSize(int new_size);
-  void trim();
-  bool sign() const;
+    void SetSize(int new_size) {
+        hword sign = oldest(this->buff[size - 1]) ? ~0 : 0;
+        buff = (hword*)realloc(buff, new_size * sizeof(hword));
+        for (int i = size; i < new_size; ++i) buff[i] = sign;
+        size = new_size;
+    }
 
-  hword* buff;
-  int size;
+    void trim() {
+        hword s = sign() ? ~0 : 0;
+        int i;
+        for (i = 0; i < size - 1 && buff[size - i - 1] == s; ++i) {
+            if ((s != 0 && oldest(buff[size - i - 2]) == 0) || (s == 0 && oldest(buff[size - i - 2]) != 0)) break;
+        }
+        SetSize(size - i);
+    }
+
+    bool sign() const {
+        return oldest(this->buff[size - 1]);
+    }
+
+    hword* buff;
+    int size;
 };
 
 template <typename T> BigInteger operator+(T l, const BigInteger& r) {
@@ -343,37 +397,6 @@ template <typename T> BigInteger operator/(T l, const BigInteger& r) {
 
 template <typename T> BigInteger operator%(T l, const BigInteger& r) {
     return BigInteger(l) % r;
-}
-
-hword BigInteger::operator[] (int pos) const
-{
-  if (pos<0) return 0;
-  if (pos>=size) return oldest(this->buff[size-1]) ?~0:0;
-  return this->buff[pos];
-}
-
-BigInteger::operator int() const
-{
-  _word t;
-  if ( size>2 ) // Ако не се събира в int
-  {
-    if ( sign() ) // Aко е отрицателно и не се събира в int
-    {
-      t.first_half=MIN_SHORT_VAL;
-      t.second_half=0;
-    }
-    else // Aко е пололжително и не се събира в int
-    {
-      t.first_half=MAX_SHORT_VAL;
-      t.second_half=~0;
-    }
-  }
-  else // Ако се събира в int
-  {
-    t.first_half=(*this)[1];
-    t.second_half=(*this)[0];
-  }
-  return t.whole;
 }
 
 BigInteger BigInteger::operator++ (int)
@@ -543,47 +566,4 @@ std::istream& operator>>(std::istream& is, BigInteger& ln)
   }
   if (s) ln=-ln;
   return is;
-}
-
-void BigInteger::SetSize(int new_size)
-{
-  hword sign=oldest(this->buff[size-1])?~0:0;
-  int i;
-  buff=(hword*)realloc(buff, new_size*sizeof(hword) );
-  for (i=size; i<new_size; ++i) buff[i]=sign;
-  size=new_size;
-}
-
-void BigInteger::trim()
-{
-  hword s=sign()?~0:0;
-  int i;
-  for(i=0; i<size-1 && buff[size-i-1]==s; ++i)
-  {
-    if ( (s!=0 && oldest(buff[size-i-2])==0) || (s==0 && oldest(buff[size-i-2])!=0 ) ) break;
-  }
-  SetSize(size-i);
-}
-
-bool BigInteger::sign() const
-{
-  return oldest(this->buff[size-1]);
-}
-
-void BigInteger::printhex() const
-{
-  int i;
-  for (i=size-1; i>=0; --i)
-  {
-    std::cout<< std::hex << buff[i];
-  }
-}
-
-void BigInteger::printbin() const
-{
-  int i, mask;
-  for (i=size-1; i>=0; --i)
-  {
-    for (mask=MIN_SHORT_VAL; mask; mask>>=1) std::cout << ( (buff[i]&mask)?1:0 );
-  }
 }
