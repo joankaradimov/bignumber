@@ -146,7 +146,7 @@ public:
         lnum.sign() ? r = -lnum : r = lnum;
         int s = sign() ^ lnum.sign();
         for (int i = 0; i < r.size; i++) {
-            res = res + ((l * r[i]) << (i * sizeof(hword) * 8));
+            res += (l * r[i]) << (i * sizeof(hword) * 8);
         }
         return s ? -res : res;
     }
@@ -163,7 +163,7 @@ public:
         res.set_size(l_positive.size + 1);
         for (int i = 0; i < l_positive.size; i++) {
             t = (unsigned)(l_positive[i] * r);
-            res = res + (t << (i * sizeof(hword) * 8));
+            res += t << (i * sizeof(hword) * 8);
         }
         return s ? -res : res;
     }
@@ -194,7 +194,7 @@ public:
             for (i = 0; l >= t; i++) t = t << (sizeof(hword) * 8);
             t = t >> (sizeof(hword) * 8);
             for (j = 0; l >= t; j++) l = l - t;
-            res = res + (j << ((i - 1) * sizeof(hword) * 8));
+            res += j << ((i - 1) * sizeof(hword) * 8);
         }
 
         /*while (l>=0)
