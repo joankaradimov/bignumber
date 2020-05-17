@@ -283,11 +283,15 @@ public:
         return !(*this < r);
     }
 
-    bool operator==(const BigInteger& r) const {
-        // TODO: optimize -- directly compare buffers
-        BigInteger temp = (*this) - r;
-        for (int i = 0; i < temp.size; ++i) if (temp.buff[i]) return 0;
-        return 1;
+    bool operator==(const BigInteger& other) const {
+        // TODO: optimize -- do not iterate numbers of different sizes
+        for (int i = 0; i < max(this->size, other.size); i++) {
+            if ((*this)[i] != other[i]) {
+                return false;
+            }
+        }
+
+        return true;
     }
 
     bool operator!=(const BigInteger& r) const {
