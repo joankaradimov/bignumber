@@ -1,6 +1,7 @@
 #pragma once
 
 #include <stdlib.h>
+#include <intrin.h>
 #include <iostream>
 
 #define max(a, b)  (((a) > (b)) ? (a) : (b))
@@ -11,6 +12,32 @@ typedef unsigned __int32 word;
 
 #define MIN_SHORT_VAL (1 << (sizeof(hword) * 8 - 1))
 #define MAX_SHORT_VAL (MIN_SHORT_VAL - 1)
+
+template <typename T>
+std::pair<T, T> multiply_with_carry(T a, T b) {
+    throw "Not Implemented";
+}
+
+template <>
+inline std::pair<unsigned __int64, unsigned __int64> multiply_with_carry(unsigned __int64 a, unsigned __int64 b) {
+    unsigned __int64 result_high;
+    unsigned __int64 result_low = _umul128(a, b, &result_high);
+    return std::pair<unsigned __int64, unsigned __int64>(result_high, result_low);
+}
+
+template <>
+inline std::pair<unsigned __int32, unsigned __int32> multiply_with_carry(unsigned __int32 a, unsigned __int32 b) {
+    unsigned __int64 result = a;
+    result *= b;
+    return std::pair<unsigned __int32, unsigned __int32>(result >> 32, result);
+}
+
+template <>
+inline std::pair<unsigned __int16, unsigned __int16> multiply_with_carry(unsigned __int16 a, unsigned __int16 b) {
+    unsigned __int32 result = a;
+    result *= b;
+    return std::pair<unsigned __int16, unsigned __int16>(result >> 16, result);
+}
 
 union _word
 {
@@ -48,6 +75,15 @@ public:
         buff = (hword*)malloc(size * sizeof(hword));
         buff[0] = w.second_half;
         buff[1] = w.first_half;
+        buff[2] = 0;
+        trim();
+    }
+
+    BigInteger(std::pair<hword, hword> num) {
+        size = 3;
+        buff = (hword*)malloc(size * sizeof(hword));
+        buff[0] = num.second;
+        buff[1] = num.first;
         buff[2] = 0;
         trim();
     }
@@ -156,13 +192,13 @@ public:
     }
 
     BigInteger operator*(hword r) const {
-        BigInteger res, l_positive, t;
+        BigInteger res, l_positive;
         bool s = sign();
         if (s) l_positive = -(*this);
         else l_positive = (*this);
         res.set_size(l_positive.size + 1);
         for (int i = 0; i < l_positive.size; i++) {
-            t = (unsigned)(l_positive[i] * r);
+            BigInteger t = multiply_with_carry(l_positive[i], r);
             res += t << (i * sizeof(hword) * 8);
         }
         return s ? -res : res;
