@@ -329,10 +329,48 @@ public:
   BigInteger operator-- (int);
   BigInteger& operator-- ();
 
-  BigInteger operator<< (unsigned shift) const;
-  BigInteger operator>> (unsigned shift) const;
-  const BigInteger operator<<= (unsigned shift);
-  const BigInteger operator>>= (unsigned shift);
+    BigInteger operator<<(unsigned shift) const {
+        int hword_shift = shift / (sizeof(hword) * 8), bit_shift = shift % (sizeof(hword) * 8);
+        _word t;
+        BigInteger res;
+        res.SetSize(size + hword_shift + 1);
+        for (int i = 0; i <= size; ++i)
+        {
+            t.first_half = (*this)[size - i];
+            t.second_half = (*this)[size - i - 1];
+            t.whole <<= bit_shift;
+            res.buff[res.size - 1 - i] = t.first_half;
+        }
+        return res;
+    }
+
+    BigInteger operator>>(unsigned shift) const {
+        int hword_shift = shift / (sizeof(hword) * 8), bit_shift = shift % (sizeof(hword) * 8);
+        if (hword_shift >= size) return sign() ? ~0 : 0;
+        _word t;
+        BigInteger res;
+        res.SetSize(size - hword_shift);
+        for (int i = 0; i < res.size; ++i)
+        {
+            t.first_half = (*this)[size - i];
+            t.second_half = (*this)[size - i - 1];
+            t.whole >>= bit_shift;
+            res.buff[res.size - 1 - i] = t.second_half;
+        }
+        return res;
+    }
+
+    BigInteger& operator<<=(unsigned shift) {
+        // TODO: optimize -- do not create extra instances
+        *this = (*this) << shift;
+        return *this;
+    }
+
+    BigInteger& operator>>=(unsigned shift) {
+        // TODO: optimize -- do not create extra instances
+        *this = (*this) >> shift;
+        return *this;
+    }
 
   friend std::ostream& operator<<(std::ostream&, const BigInteger&);
   friend std::istream& operator>>(std::istream&, BigInteger&);
@@ -452,51 +490,6 @@ BigInteger& BigInteger::operator-- ()
       return *this;
     }
   }
-  return *this;
-}
-
-BigInteger BigInteger::operator<< (unsigned shift) const
-{
-  int i, hword_shift=shift/(sizeof(hword)*8), bit_shift=shift%(sizeof(hword)*8);
-  _word t;
-  BigInteger res;
-  res.SetSize(size+hword_shift+1);
-  for (i=0; i<=size; ++i)
-  {
-    t.first_half=(*this)[size-i];
-    t.second_half=(*this)[size-i-1];
-    t.whole<<=bit_shift;
-    res.buff[res.size-1-i]=t.first_half;
-  }
-  return res;
-}
-
-BigInteger BigInteger::operator>> (unsigned shift) const
-{
-  int i, hword_shift=shift/(sizeof(hword)*8), bit_shift=shift%(sizeof(hword)*8);
-  if (hword_shift>=size) return sign()?~0:0;
-  _word t;
-  BigInteger res;
-  res.SetSize(size-hword_shift);
-  for (i=0; i<res.size; ++i)
-  {
-    t.first_half=(*this)[size-i];
-    t.second_half=(*this)[size-i-1];
-    t.whole>>=bit_shift;
-    res.buff[res.size-1-i]=t.second_half;
-  }
-  return res;
-}
-
-const BigInteger BigInteger::operator <<= (unsigned shift)
-{
-  *this=(*this)<<shift;
-  return *this;
-}
-
-const BigInteger BigInteger::operator >>= (unsigned shift)
-{
-  *this=(*this)>>shift;
   return *this;
 }
 
