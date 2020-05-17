@@ -205,10 +205,6 @@ public:
         return (*this) - (((*this) / r) * r);
     }
 
-  friend BigInteger operator+ (int, const BigInteger&);
-  friend BigInteger operator- (int, const BigInteger&);
-  friend BigInteger operator* (int, const BigInteger&);
-
   int operator < (const BigInteger&) const;
   int operator > (const BigInteger&) const;
   int operator <= (const BigInteger&) const;
@@ -307,19 +303,24 @@ private:
   int size;
 };
 
-BigInteger operator+ (int l, const BigInteger& r)
-{
-  return r+l;
+template <typename T> BigInteger operator+(T l, const BigInteger& r) {
+  return r + l;
 }
 
-BigInteger operator- (int l, const BigInteger& r)
-{
-  return (-r)+l;
+template <typename T> BigInteger operator-(T l, const BigInteger& r) {
+  return (-r) + l;
 }
 
-BigInteger operator* (int l, const BigInteger& r)
-{
-  return r*l;
+template <typename T> BigInteger operator*(T l, const BigInteger& r) {
+  return r * l;
+}
+
+template <typename T> BigInteger operator/(T l, const BigInteger& r) {
+    return BigInteger(l) / r;
+}
+
+template <typename T> BigInteger operator%(T l, const BigInteger& r) {
+    return BigInteger(l) % r;
 }
 
 int BigInteger::operator< (const BigInteger& r) const
