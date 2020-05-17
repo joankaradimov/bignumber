@@ -496,67 +496,58 @@ BigInteger& BigInteger::operator-- ()
 std::ostream& operator<<(std::ostream& os, const BigInteger& ln)
 {
   BigInteger ln_positive;
-  if ( ln.sign() )
-  {
-    ln_positive=-ln;
-    os<<'-';
+  if (ln.sign()) {
+    ln_positive = -ln;
+    os << '-';
   }
-  else
-  {
-    ln_positive=ln;
+  else {
+    ln_positive = ln;
   }
   int i;
   char* buff;
-  try 
-  {
+  try {
     // Долния ред заделя (много) повече място от необходимото. Горния заделя точно колкото е нужно, но не го ползвам, защото изглежда безумно...
     //buff=new char[1+(log( double(1<< (sizeof(hword)*8)) ) / log( double(LongNumber::IO_BASE) ))*ln.size ];
-    buff=new char[ln_positive.size*sizeof(hword)*8];
+    buff = new char[ln_positive.size * sizeof(hword) * 8];
   }
-  catch(...)
-  {
+  catch(...) {
     throw;
   }
-  for (i=0; ; ++i)
-  {
-    buff[i]='0'+(ln_positive%BigInteger::IO_BASE).buff[0];
-    ln_positive=ln_positive/BigInteger::IO_BASE;
-    if (ln_positive==0) break;
+
+  for (i = 0; ; ++i) {
+    buff[i] = '0' + (ln_positive % BigInteger::IO_BASE).buff[0];
+    ln_positive = ln_positive / BigInteger::IO_BASE;
+    if (ln_positive == 0) break;
   }
-  for ( ; i>=0; --i)
-  {
-    os<<buff[i];
+  for ( ; i>=0; --i) {
+    os << buff[i];
   }
   delete[] buff;
 
   return os;
 }
 
-std::istream& operator>>(std::istream& is, BigInteger& ln)
-{
-
-  ln=0;
-  int s=0;
+std::istream& operator>>(std::istream& is, BigInteger& ln) {
+  ln = 0;
+  int s = 0;
   char ch;
-  is>>ch;
-  if (ch=='-')
-  {
-    s=1;
-    is>>ch;
+  is >> ch;
+  if (ch == '-') {
+    s = 1;
+    is >> ch;
   }
-  else if (ch=='+')
-  {
-    s=0;
-    is>>ch;
+  else if (ch=='+') {
+    s = 0;
+    is >> ch;
   }
-  for(;;)
-  {
-    ln=ln*BigInteger::IO_BASE;
-    ln=ln+(ch-'0');
-    ch=is.peek();
-    if ( ch<'0' || ch>'9' || isspace(ch) ) break;
-    is>>ch;
+
+  for(;;) {
+    ln = ln * BigInteger::IO_BASE;
+    ln = ln + (ch - '0');
+    ch = is.peek();
+    if (ch < '0' || ch > '9' || isspace(ch)) break;
+    is >> ch;
   }
-  if (s) ln=-ln;
+  if (s) ln = -ln;
   return is;
 }
