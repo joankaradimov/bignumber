@@ -93,7 +93,7 @@ public:
         int i, m = max(this->size, r.size);
         int s = this->sign() != r.sign();
         BigInteger res;
-        res.SetSize(m + 1 - s);
+        res.set_size(m + 1 - s);
         _word t;
         for (i = 0; i < m - s; ++i) {
             t.whole = (*this)[i] + r[i] + res[i];
@@ -161,7 +161,7 @@ public:
         bool s = sign();
         if (s) l_positive = -(*this);
         else l_positive = (*this);
-        res.SetSize(l_positive.size + 1);
+        res.set_size(l_positive.size + 1);
         for (int i = 0; i < l_positive.size; i++) {
             t = (unsigned)(l_positive[i] * r);
             res = res + (t << (i * sizeof(hword) * 8));
@@ -217,7 +217,7 @@ public:
         BigInteger res, l;
         s ? l = -(*this) : l = (*this);
         _word t;
-        res.SetSize(l.size);
+        res.set_size(l.size);
         for (int i = l.size; i > 0; --i)
         {
             t.first_half = l[i];
@@ -399,7 +399,7 @@ public:
             {
                 if (buff[size - 1] == MIN_SHORT_VAL)
                 {
-                    SetSize(size + 1);
+                    set_size(size + 1);
                     buff[size - 1] = 0;
                 }
                 return *this;
@@ -425,7 +425,7 @@ public:
             {
                 if (buff[size - 1] == MAX_SHORT_VAL)
                 {
-                    SetSize(size + 1);
+                    set_size(size + 1);
                     buff[size - 1] = ~0;
                 }
                 return *this;
@@ -438,7 +438,7 @@ public:
         int hword_shift = shift / (sizeof(hword) * 8), bit_shift = shift % (sizeof(hword) * 8);
         _word t;
         BigInteger res;
-        res.SetSize(size + hword_shift + 1);
+        res.set_size(size + hword_shift + 1);
         for (int i = 0; i <= size; ++i)
         {
             t.first_half = (*this)[size - i];
@@ -454,7 +454,7 @@ public:
         if (hword_shift >= size) return sign() ? ~0 : 0;
         _word t;
         BigInteger res;
-        res.SetSize(size - hword_shift);
+        res.set_size(size - hword_shift);
         for (int i = 0; i < res.size; ++i)
         {
             t.first_half = (*this)[size - i];
@@ -503,7 +503,7 @@ private:
         return this->buff[position];
     }
 
-    void SetSize(int new_size) {
+    void set_size(int new_size) {
         hword sign = oldest(this->buff[size - 1]) ? ~0 : 0;
         buff = (hword*)realloc(buff, new_size * sizeof(hword));
         for (int i = size; i < new_size; ++i) buff[i] = sign;
@@ -516,7 +516,7 @@ private:
         for (i = 0; i < size - 1 && buff[size - i - 1] == s; ++i) {
             if ((s != 0 && oldest(buff[size - i - 2]) == 0) || (s == 0 && oldest(buff[size - i - 2]) != 0)) break;
         }
-        SetSize(size - i);
+        set_size(size - i);
     }
 
     bool sign() const {
