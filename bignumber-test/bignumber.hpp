@@ -177,9 +177,9 @@ public:
     }
 
     BigInteger operator*(const BigInteger& lnum) const {
-        BigInteger l, r, res;
-        sign() ? l = -(*this) : l = (*this);
-        lnum.sign() ? r = -lnum : r = lnum;
+        BigInteger res;
+        BigInteger l = sign() ? -(*this) : (*this);
+        BigInteger r = lnum.sign() ? -lnum : lnum;
         int s = sign() ^ lnum.sign();
         for (int i = 0; i < r.size; i++) {
             res += (l * r[i]) << (i * sizeof(hword) * 8);
@@ -192,10 +192,9 @@ public:
     }
 
     BigInteger operator*(hword r) const {
-        BigInteger res, l_positive;
+        BigInteger res;
         bool s = sign();
-        if (s) l_positive = -(*this);
-        else l_positive = (*this);
+        BigInteger l_positive = s ? -(*this) : (*this);
         res.set_size(l_positive.size + 1);
         for (int i = 0; i < l_positive.size; i++) {
             BigInteger t = multiply_with_carry(l_positive[i], r);
@@ -218,9 +217,9 @@ public:
 
     BigInteger operator/(const BigInteger& lnum) const {
         // TODO: can this be optimized
-        BigInteger l, r, res = 0;
-        sign() ? l = -(*this) : l = (*this);
-        lnum.sign() ? r = -lnum : r = lnum;
+        BigInteger res = 0;
+        BigInteger l = sign() ? -(*this) : (*this);
+        BigInteger r = lnum.sign() ? -lnum : lnum;
         int s = sign() ^ lnum.sign();
 
         int i;
@@ -249,8 +248,8 @@ public:
 
     BigInteger operator/(hword r) const {
         int s = sign();
-        BigInteger res, l;
-        s ? l = -(*this) : l = (*this);
+        BigInteger res;
+        BigInteger l = s ? -(*this) : (*this);
         _word t;
         res.set_size(l.size);
         for (int i = l.size; i > 0; --i)
