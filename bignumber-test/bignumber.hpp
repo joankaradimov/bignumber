@@ -264,10 +264,17 @@ public:
         return *this;
     }
 
-    bool operator<(const BigInteger& r) const {
-        // TODO: optimize -- directly compare buffers
-        BigInteger temp = (*this) - r;
-        return temp.sign();
+    bool operator<(const BigInteger& other) const {
+        // TODO: optimize -- do not iterate numbers of different sizes
+        for (int i = max(this->size, other.size) - 1; i >= 0; i--) {
+            if ((*this)[i] < other[i]) {
+                return true;
+            }
+            if ((*this)[i] > other[i]) {
+                return false;
+            }
+        }
+        return false;
     }
 
     bool operator>(const BigInteger& r) const {
