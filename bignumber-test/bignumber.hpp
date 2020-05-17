@@ -384,10 +384,57 @@ public:
         return t.whole;
     }
 
-  BigInteger operator++ (int);
-  BigInteger& operator++ ();
-  BigInteger operator-- (int);
-  BigInteger& operator-- ();
+    BigInteger operator++(int) {
+        BigInteger old = *this;
+        ++(*this);
+        return old;
+    }
+
+    BigInteger& operator++() {
+        _word t;
+        int s = sign();
+        for (int i = 0; i < size; ++i)
+        {
+            t.whole = (*this)[i] + 1;
+            buff[i] = t.second_half;
+            if (t.first_half == 0)
+            {
+                if (buff[size - 1] == MIN_SHORT_VAL)
+                {
+                    SetSize(size + 1);
+                    buff[size - 1] = 0;
+                }
+                return *this;
+            }
+        }
+        return *this;
+    }
+
+    BigInteger operator--(int) {
+        BigInteger old = *this;
+        --(*this);
+        return old;
+    }
+
+    BigInteger& operator--() {
+        _word t;
+        int s = sign();
+        for (int i = 0; i < size; ++i)
+        {
+            t.whole = (*this)[i] - 1;
+            buff[i] = t.second_half;
+            if (t.first_half == 0)
+            {
+                if (buff[size - 1] == MAX_SHORT_VAL)
+                {
+                    SetSize(size + 1);
+                    buff[size - 1] = ~0;
+                }
+                return *this;
+            }
+        }
+        return *this;
+    }
 
     BigInteger operator<<(unsigned shift) const {
         int hword_shift = shift / (sizeof(hword) * 8), bit_shift = shift % (sizeof(hword) * 8);
@@ -495,62 +542,6 @@ template <typename T> BigInteger operator/(T l, const BigInteger& r) {
 
 template <typename T> BigInteger operator%(T l, const BigInteger& r) {
     return BigInteger(l) % r;
-}
-
-BigInteger BigInteger::operator++ (int)
-{
-  BigInteger old=*this;
-  ++(*this);
-  return old;
-}
-
-BigInteger& BigInteger::operator++ ()
-{
-  _word t;
-  int i, s=sign();
-  for (i=0; i<size; ++i)
-  {
-    t.whole=(*this)[i]+1;
-    buff[i]=t.second_half;
-    if (t.first_half==0)
-    {
-      if ( buff[size-1]==MIN_SHORT_VAL )
-      {
-        SetSize(size+1);
-        buff[size-1]=0;
-      }
-      return *this;
-    }
-  }
-  return *this;
-}
-
-BigInteger BigInteger::operator-- (int)
-{
-  BigInteger old=*this;
-  --(*this);
-  return old;
-}
-
-BigInteger& BigInteger::operator-- ()
-{
-  _word t;
-  int i, s=sign();
-  for (i=0; i<size; ++i)
-  {
-    t.whole=(*this)[i]-1;
-    buff[i]=t.second_half;
-    if (t.first_half==0)
-    {
-      if ( buff[size-1]==MAX_SHORT_VAL )
-      {
-        SetSize(size+1);
-        buff[size-1]=~0;
-      }
-      return *this;
-    }
-  }
-  return *this;
 }
 
 std::ostream& operator<<(std::ostream& os, const BigInteger& ln)
