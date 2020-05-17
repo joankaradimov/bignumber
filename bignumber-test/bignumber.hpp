@@ -359,12 +359,6 @@ public:
         return *this;
     }
 
-    hword operator[] (int pos) const {
-        if (pos < 0) return 0;
-        if (pos >= size) return oldest(this->buff[size - 1]) ? ~0 : 0;
-        return this->buff[pos];
-    }
-
     explicit operator int() const {
         _word t;
         if (size > 2) // Ако не се събира в int
@@ -503,6 +497,11 @@ public:
 
     static const hword IO_BASE=10;
 private:
+
+    hword operator[](unsigned position) const {
+        if (position >= size) return oldest(this->buff[size - 1]) ? ~0 : 0;
+        return this->buff[position];
+    }
 
     void SetSize(int new_size) {
         hword sign = oldest(this->buff[size - 1]) ? ~0 : 0;
