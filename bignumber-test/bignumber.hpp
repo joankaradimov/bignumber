@@ -269,7 +269,7 @@ public:
         for (int i = len - 1; i >= 0; i--) {
             if (str[i] < '0' || str[i]>'9') break;
             val = str[i] - '0';
-            (*this) = (*this) + val * mult;
+            (*this) = (*this) + mult * val;
             mult = mult * IO_BASE;
         }
         *this = s ? -(*this) : (*this);
