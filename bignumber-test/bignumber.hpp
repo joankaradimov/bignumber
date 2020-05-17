@@ -6,11 +6,11 @@
 #define max(a, b)  (((a) > (b)) ? (a) : (b))
 #define oldest(a) ( !!(a&(1<<(sizeof(a)*8-1))) )
 
-#define MIN_SHORT_VAL 0x8000
-#define MAX_SHORT_VAL 0x7fff
-
 typedef unsigned __int16 hword;
 typedef unsigned __int32 word;
+
+#define MIN_SHORT_VAL (1 << (sizeof(hword) * 8 - 1))
+#define MAX_SHORT_VAL (MIN_SHORT_VAL - 1)
 
 union _word
 {
