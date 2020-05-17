@@ -33,6 +33,7 @@
   <ImportGroup Label="PropertySheets" />
   <PropertyGroup Label="UserMacros" />
   <ItemGroup>
+    <ClCompile Include="test_arithmetic.cpp" />
     <ClCompile Include="test_construction.cpp" />
   </ItemGroup>
   <ItemGroup>
