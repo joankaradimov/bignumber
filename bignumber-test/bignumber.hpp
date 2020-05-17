@@ -61,10 +61,9 @@ public:
     }
 
     BigInteger(const BigInteger& lnum) {
-        int i;
         size = lnum.size;
         buff = (hword*)malloc(size * sizeof(hword));
-        for (i = 0; i < size; ++i) buff[i] = lnum.buff[i];
+        for (int i = 0; i < size; ++i) buff[i] = lnum.buff[i];
         trim();
     }
 
