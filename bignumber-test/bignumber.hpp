@@ -479,8 +479,8 @@ public:
         return *this;
     }
 
-  friend std::ostream& operator<<(std::ostream&, const BigInteger&);
-  friend std::istream& operator>>(std::istream&, BigInteger&);
+    template <typename T> friend std::basic_ostream<T>& operator<<(std::basic_ostream<T>&, const BigInteger&);
+    template <typename T> friend std::basic_istream<T>& operator>>(std::basic_istream<T>&, BigInteger&);
 
     void printbin() const {
         for (int i = size - 1; i >= 0; --i) {
@@ -544,61 +544,60 @@ template <typename T> BigInteger operator%(T l, const BigInteger& r) {
     return BigInteger(l) % r;
 }
 
-std::ostream& operator<<(std::ostream& os, const BigInteger& ln)
-{
-  BigInteger ln_positive;
-  if (ln.sign()) {
-    ln_positive = -ln;
-    os << '-';
-  }
-  else {
-    ln_positive = ln;
-  }
-  int i;
-  char* buff;
-  try {
-    // Долния ред заделя (много) повече място от необходимото. Горния заделя точно колкото е нужно, но не го ползвам, защото изглежда безумно...
-    //buff=new char[1+(log( double(1<< (sizeof(hword)*8)) ) / log( double(LongNumber::IO_BASE) ))*ln.size ];
-    buff = new char[ln_positive.size * sizeof(hword) * 8];
-  }
-  catch(...) {
-    throw;
-  }
+template <typename T> std::basic_ostream<T>& operator<<(std::basic_ostream<T>& os, const BigInteger& ln) {
+    BigInteger ln_positive;
+    if (ln.sign()) {
+        ln_positive = -ln;
+        os << '-';
+    }
+    else {
+        ln_positive = ln;
+    }
+    int i;
+    T* buff;
+    try {
+        // Долния ред заделя (много) повече място от необходимото. Горния заделя точно колкото е нужно, но не го ползвам, защото изглежда безумно...
+        //buff=new T[1+(log( double(1<< (sizeof(hword)*8)) ) / log( double(LongNumber::IO_BASE) ))*ln.size ];
+        buff = new T[ln_positive.size * sizeof(hword) * 8];
+    }
+    catch (...) {
+        throw;
+    }
 
-  for (i = 0; ; ++i) {
-    buff[i] = '0' + (ln_positive % BigInteger::IO_BASE).buff[0];
-    ln_positive = ln_positive / BigInteger::IO_BASE;
-    if (ln_positive == 0) break;
-  }
-  for ( ; i>=0; --i) {
-    os << buff[i];
-  }
-  delete[] buff;
+    for (i = 0; ; ++i) {
+        buff[i] = '0' + (ln_positive % BigInteger::IO_BASE).buff[0];
+        ln_positive = ln_positive / BigInteger::IO_BASE;
+        if (ln_positive == 0) break;
+    }
+    for (; i >= 0; --i) {
+        os << buff[i];
+    }
+    delete[] buff;
 
-  return os;
+    return os;
 }
 
-std::istream& operator>>(std::istream& is, BigInteger& ln) {
-  ln = 0;
-  int s = 0;
-  char ch;
-  is >> ch;
-  if (ch == '-') {
-    s = 1;
+template <typename T> std::basic_istream<T>& operator>>(std::basic_istream<T>& is, BigInteger& ln) {
+    ln = 0;
+    int s = 0;
+    T ch;
     is >> ch;
-  }
-  else if (ch=='+') {
-    s = 0;
-    is >> ch;
-  }
+    if (ch == '-') {
+        s = 1;
+        is >> ch;
+    }
+    else if (ch == '+') {
+        s = 0;
+        is >> ch;
+    }
 
-  for(;;) {
-    ln = ln * BigInteger::IO_BASE;
-    ln = ln + (ch - '0');
-    ch = is.peek();
-    if (ch < '0' || ch > '9' || isspace(ch)) break;
-    is >> ch;
-  }
-  if (s) ln = -ln;
-  return is;
+    for (;;) {
+        ln = ln * BigInteger::IO_BASE;
+        ln = ln + (ch - '0');
+        ch = is.peek();
+        if (ch < '0' || ch > '9' || isspace(ch)) break;
+        is >> ch;
+    }
+    if (s) ln = -ln;
+    return is;
 }
