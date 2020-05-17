@@ -205,12 +205,34 @@ public:
         return (*this) - (((*this) / r) * r);
     }
 
-  int operator < (const BigInteger&) const;
-  int operator > (const BigInteger&) const;
-  int operator <= (const BigInteger&) const;
-  int operator >= (const BigInteger&) const;
-  int operator == (const BigInteger&) const;
-  int operator != (const BigInteger&) const;
+    bool operator<(const BigInteger& r) const {
+        // TODO: optimize -- directly compare buffers
+        BigInteger temp = (*this) - r;
+        return temp.sign();
+    }
+
+    bool operator>(const BigInteger& r) const {
+        return r < *this;
+    }
+
+    bool operator<=(const BigInteger& r) const {
+        return !(*this > r);
+    }
+
+    bool operator>=(const BigInteger& r) const {
+        return !(*this < r);
+    }
+
+    bool operator==(const BigInteger& r) const {
+        // TODO: optimize -- directly compare buffers
+        BigInteger temp = (*this) - r;
+        for (int i = 0; i < temp.size; ++i) if (temp.buff[i]) return 0;
+        return 1;
+    }
+
+    bool operator!=(const BigInteger& r) const {
+        return !((*this) == r);
+    }
 
     const BigInteger& operator=(const BigInteger& lnum) {
         if (this != &lnum) {
@@ -321,40 +343,6 @@ template <typename T> BigInteger operator/(T l, const BigInteger& r) {
 
 template <typename T> BigInteger operator%(T l, const BigInteger& r) {
     return BigInteger(l) % r;
-}
-
-int BigInteger::operator< (const BigInteger& r) const
-{
-  BigInteger temp=(*this)-r;
-  return temp.sign();
-}
-
-int BigInteger::operator> (const BigInteger& r) const
-{
-  BigInteger temp=r-(*this);
-  return temp.sign();
-}
-
-int BigInteger::operator<= (const BigInteger& r) const
-{
-  return !( (*this)>r );
-}
-
-int BigInteger::operator>= (const BigInteger& r) const
-{
-  return !( (*this)<r );
-}
-
-int BigInteger::operator== (const BigInteger& r) const
-{
-  BigInteger temp=(*this)-r;
-  for (int i=0; i<temp.size; ++i) if (temp.buff[i]) return 0;
-  return 1;
-}
-
-int BigInteger::operator!= (const BigInteger& r) const
-{
-  return !( (*this)==r );
 }
 
 hword BigInteger::operator[] (int pos) const
