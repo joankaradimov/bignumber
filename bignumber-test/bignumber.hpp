@@ -546,6 +546,30 @@ template <typename T> BigInteger operator%(T l, const BigInteger& r) {
     return BigInteger(l) % r;
 }
 
+template <typename T> bool operator<(T l, const BigInteger& r) {
+    return r > l;
+}
+
+template <typename T> bool operator>(T l, const BigInteger& r) {
+    return r < l;
+}
+
+template <typename T> bool operator<=(T l, const BigInteger& r) {
+    return r >= l;
+}
+
+template <typename T> bool operator>=(T l, const BigInteger& r) {
+    return r <= l;
+}
+
+template <typename T> bool operator==(T l, const BigInteger& r) {
+    return r == l;
+}
+
+template <typename T> bool operator!=(T l, const BigInteger& r) {
+    return r != l;
+}
+
 template <typename T> std::basic_ostream<T>& operator<<(std::basic_ostream<T>& os, const BigInteger& ln) {
     BigInteger ln_positive;
     if (ln.sign()) {
