@@ -109,12 +109,36 @@ public:
         return *this + BigInteger(r); // TODO: optimize
     }
 
+    BigInteger& operator+=(const BigInteger& r) {
+        // TODO: optimize -- do not create extra instances
+        *this = (*this) + r;
+        return *this;
+    }
+
+    BigInteger& operator+=(int r) {
+        // TODO: optimize -- do not create extra instances
+        *this = (*this) + r;
+        return *this;
+    }
+
     BigInteger operator-(const BigInteger& r) const {
         return (*this) + (-r);
     }
 
     BigInteger operator-(int r) const {
         return *this - BigInteger(r); // TODO: optimize
+    }
+
+    BigInteger& operator-=(const BigInteger& r) {
+        // TODO: optimize -- do not create extra instances
+        *this = (*this) - r;
+        return *this;
+    }
+
+    BigInteger& operator-=(int r) {
+        // TODO: optimize -- do not create extra instances
+        *this = (*this) - r;
+        return *this;
     }
 
     BigInteger operator*(const BigInteger& lnum) const {
@@ -143,6 +167,18 @@ public:
             res = res + (t << (i * sizeof(hword) * 8));
         }
         return s ? -res : res;
+    }
+
+    BigInteger& operator*=(const BigInteger& r) {
+        // TODO: optimize -- do not create extra instances
+        *this = (*this) * r;
+        return *this;
+    }
+
+    BigInteger& operator*=(int r) {
+        // TODO: optimize -- do not create extra instances
+        *this = (*this) * r;
+        return *this;
     }
 
     BigInteger operator/(const BigInteger& lnum) const {
@@ -192,6 +228,18 @@ public:
         return s ? -res : res;
     }
 
+    BigInteger& operator/=(const BigInteger& r) {
+        // TODO: optimize -- do not create extra instances
+        *this = (*this) / r;
+        return *this;
+    }
+
+    BigInteger& operator/=(int r) {
+        // TODO: optimize -- do not create extra instances
+        *this = (*this) / r;
+        return *this;
+    }
+
     BigInteger operator%(const BigInteger& r) const {
         return (*this) - (((*this) / r) * r);
     }
@@ -203,6 +251,18 @@ public:
     BigInteger operator%(hword r) const {
         // TODO: optimize -- implement a divmod method and use it here
         return (*this) - (((*this) / r) * r);
+    }
+
+    BigInteger& operator%=(const BigInteger& r) {
+        // TODO: optimize -- do not create extra instances
+        *this = (*this) % r;
+        return *this;
+    }
+
+    BigInteger& operator%=(int r) {
+        // TODO: optimize -- do not create extra instances
+        *this = (*this) % r;
+        return *this;
     }
 
     bool operator<(const BigInteger& r) const {
