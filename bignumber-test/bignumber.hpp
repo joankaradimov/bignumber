@@ -120,7 +120,7 @@ public:
         return ~res;
     }
 
-    const BigInteger& operator+ () const {
+    const BigInteger& operator+() const {
         return (*this);
     }
 
