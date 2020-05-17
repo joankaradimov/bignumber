@@ -257,7 +257,7 @@ public:
         return *this;
     }
 
-    const BigInteger& BigInteger::operator= (unsigned num) {
+    const BigInteger& BigInteger::operator=(unsigned num) {
         _word w;
         w.whole = num;
         size = 1 + sizeof(word) / sizeof(hword);
@@ -270,7 +270,7 @@ public:
         return *this;
     }
 
-    const BigInteger& BigInteger::operator= (const char* str) {
+    const BigInteger& BigInteger::operator=(const char* str) {
         BigInteger mult = 1;
         int s = 0, len, val;
         (*this) = 0;
