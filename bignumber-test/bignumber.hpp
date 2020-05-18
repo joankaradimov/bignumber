@@ -334,7 +334,7 @@ public:
     }
 
     bool operator!=(const BigInteger& r) const {
-        return !((*this) == r);
+        return !(*this == r);
     }
 
     const BigInteger& operator=(const BigInteger& lnum) {
