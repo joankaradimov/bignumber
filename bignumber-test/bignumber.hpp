@@ -396,27 +396,8 @@ public:
         return *this;
     }
 
-    explicit operator int() const {
-        _word t;
-        if (size > 2) // Ако не се събира в int
-        {
-            if (sign()) // Aко е отрицателно и не се събира в int
-            {
-                t.first_half = MIN_SHORT_VAL;
-                t.second_half = 0;
-            }
-            else // Aко е пололжително и не се събира в int
-            {
-                t.first_half = MAX_SHORT_VAL;
-                t.second_half = ~0;
-            }
-        }
-        else // Ако се събира в int
-        {
-            t.first_half = (*this)[1];
-            t.second_half = (*this)[0];
-        }
-        return t.whole;
+    explicit operator hword() const {
+        return buff[0];
     }
 
     BigInteger operator++(int) {
