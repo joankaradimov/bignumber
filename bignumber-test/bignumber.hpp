@@ -215,7 +215,7 @@ public:
 
     BigInteger operator/(const BigInteger& lnum) const {
         // TODO: can this be optimized
-        BigInteger res = 0;
+        BigInteger res;
         BigInteger l = sign() ? -(*this) : (*this);
         BigInteger r = lnum.sign() ? -lnum : lnum;
         int s = sign() ^ lnum.sign();
