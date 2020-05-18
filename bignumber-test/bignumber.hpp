@@ -372,25 +372,25 @@ public:
     }
 
     const BigInteger& operator=(const char* str) {
-        BigInteger mult = 1;
-        int s = 0, len, val;
         (*this) = 0;
+        int s = 0;
 
         if (*str == '+') {
             ++str;
-            s = 0;
         }
         else if (*str == '-') {
             s = 1;
             ++str;
         }
-        for (len = 0; str[len]; ++len);
-        for (int i = len - 1; i >= 0; i--) {
-            if (str[i] < '0' || str[i]>'9') break;
-            val = str[i] - '0';
-            (*this) += mult * val;
-            mult *= IO_BASE;
+
+        for (int i = 0; str[i]; ++i) {
+            // TODO: read multiple decimal digits at once
+            if (str[i] < '0' || str[i] > '9') break;
+            hword digit = str[i] - '0';
+            (*this) *= IO_BASE;
+            (*this) += digit;
         }
+
         *this = s ? -(*this) : (*this);
         trim();
         return *this;
