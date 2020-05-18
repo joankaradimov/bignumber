@@ -59,23 +59,21 @@ public:
     }
 
     BigInteger(int num) {
-        _word w;
-        w.whole = num;
-        size = sizeof(word) / sizeof(hword);
+        size = sizeof(num) / sizeof(hword);
         buff = (hword*)malloc(size * sizeof(hword));
-        buff[0] = w.second_half;
-        buff[1] = w.first_half;
+        for (int i = 0; i < sizeof(num) / sizeof(hword); i++) {
+            buff[i] = hword(num >> (i * sizeof(hword) * 8));
+        }
         trim();
     }
 
-    BigInteger(unsigned long num) {
-        _word w;
-        w.whole = num;
-        size = 1 + sizeof(word) / sizeof(hword);
+    BigInteger(unsigned int num) {
+        size = 1 + sizeof(num) / sizeof(hword);
         buff = (hword*)malloc(size * sizeof(hword));
-        buff[0] = w.second_half;
-        buff[1] = w.first_half;
-        buff[2] = 0;
+        for (int i = 0; i < sizeof(num) / sizeof(hword); i++) {
+            buff[i] = hword(num >> (i * sizeof(hword) * 8));
+        }
+        buff[sizeof(num) / sizeof(hword)] = 0;
         trim();
     }
 
@@ -351,26 +349,24 @@ public:
     }
 
     const BigInteger& operator=(int num) {
-        _word w;
-        w.whole = num;
-        size = 2;
+        size = sizeof(num) / sizeof(hword);
         free(buff);
         buff = (hword*)malloc(size * sizeof(hword));
-        buff[0] = w.second_half;
-        buff[1] = w.first_half;
+        for (int i = 0; i < sizeof(num) / sizeof(hword); i++) {
+            buff[i] = hword(num >> (i * sizeof(hword) * 8));
+        }
         trim();
         return *this;
     }
 
     const BigInteger& operator=(unsigned num) {
-        _word w;
-        w.whole = num;
-        size = 1 + sizeof(word) / sizeof(hword);
+        size = 1 + sizeof(num) / sizeof(hword);
         free(buff);
         buff = (hword*)malloc(size * sizeof(hword));
-        buff[0] = w.second_half;
-        buff[1] = w.first_half;
-        buff[2] = 0;
+        for (int i = 0; i < sizeof(num) / sizeof(hword); i++) {
+            buff[i] = hword(num >> (i * sizeof(hword) * 8));
+        }
+        buff[sizeof(num) / sizeof(hword)] = 0;
         trim();
         return *this;
     }
