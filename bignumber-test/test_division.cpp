@@ -35,6 +35,8 @@ TEST(TestDivision, DividesAndRoundsDown) {
     const BigInteger very_long_number = "1000000000000000000000000000000000000000000";
     EXPECT_EQ(very_long_number / "33333333333333333333333333333", "30000000000000");
     EXPECT_EQ(very_long_number / 3, "333333333333333333333333333333333333333333");
+
+    EXPECT_EQ(BigInteger(1) / 2, 0);
 }
 
 TEST(TestDivision, DividesAndAssignsBigIntegers) {
