@@ -16,6 +16,9 @@ TEST(TestConstruction, ConstructsFromIntegers) {
 }
 
 TEST(TestConstruction, ConstructsFromStrings) {
+    BigInteger zero = "0";
+    EXPECT_EQ(zero, 0);
+
     BigInteger hundred = "100";
     EXPECT_EQ(hundred, 100);
 
