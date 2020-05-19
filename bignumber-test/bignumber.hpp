@@ -123,18 +123,17 @@ public:
     }
 
     BigInteger operator+(const BigInteger& r) const {
-        int i, m = max(this->size, r.size);
+        int m = max(this->size, r.size);
         int s = this->sign() != r.sign();
         BigInteger res;
         res.set_size(m + 1 - s);
+        hword carry = 0;
         _word t;
-        for (i = 0; i < m - s; ++i) {
-            t.whole = (*this)[i] + r[i] + res[i];
+        for (int i = 0; i < res.size; ++i) {
+            t.whole = (*this)[i] + r[i] + carry;
             res.buff[i] = t.second_half;
-            res.buff[i + 1] = t.first_half;
+            carry = t.first_half;
         }
-        t.whole = (*this)[i] + r[i] + res[i];
-        res.buff[i] = t.second_half;
         return res;
     }
 
