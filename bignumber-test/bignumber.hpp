@@ -453,32 +453,26 @@ public:
     }
 
     BigInteger operator<<(unsigned shift) const {
-        int hword_shift = shift / (sizeof(hword) * 8), bit_shift = shift % (sizeof(hword) * 8);
-        _word t;
+        unsigned hword_shift = shift / (sizeof(hword) * 8);
+        unsigned bit_shift = shift % (sizeof(hword) * 8);
+
         BigInteger res;
         res.set_size(size + hword_shift + 1);
-        for (int i = 0; i <= size; ++i)
-        {
-            t.first_half = (*this)[size - i];
-            t.second_half = (*this)[size - i - 1];
-            t.whole <<= bit_shift;
-            res.buff[res.size - 1 - i] = t.first_half;
+        for (int i = 0; i <= size; ++i) {
+            res.buff[res.size - i - 1] = ((*this)[size - i - 1] >> ((sizeof(hword) * 8) - bit_shift)) | ((*this)[size - i] << bit_shift);
         }
         return res;
     }
 
     BigInteger operator>>(unsigned shift) const {
-        int hword_shift = shift / (sizeof(hword) * 8), bit_shift = shift % (sizeof(hword) * 8);
+        unsigned hword_shift = shift / (sizeof(hword) * 8);
+        unsigned bit_shift = shift % (sizeof(hword) * 8);
+
         if (hword_shift >= size) return sign() ? ~0 : 0;
-        _word t;
         BigInteger res;
         res.set_size(size - hword_shift);
-        for (int i = 0; i < res.size; ++i)
-        {
-            t.first_half = (*this)[size - i];
-            t.second_half = (*this)[size - i - 1];
-            t.whole >>= bit_shift;
-            res.buff[res.size - 1 - i] = t.second_half;
+        for (int i = 0; i < res.size; ++i) {
+            res.buff[res.size - i - 1] = ((*this)[size - i - 1] >> bit_shift) | ((*this)[size - i] << ((sizeof(hword) * 8) - bit_shift));
         }
         return res;
     }
