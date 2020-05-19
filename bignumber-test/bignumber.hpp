@@ -10,7 +10,7 @@
 typedef unsigned __int16 hword;
 typedef unsigned __int32 word;
 
-#define MIN_SHORT_VAL (1 << (sizeof(hword) * 8 - 1))
+#define MIN_SHORT_VAL (1 << (BigInteger::BITS_PER_DIGIT - 1))
 #define MAX_SHORT_VAL (MIN_SHORT_VAL - 1)
 
 template <typename T>
@@ -62,7 +62,7 @@ public:
         size = sizeof(num) / sizeof(hword);
         buff = (hword*)malloc(size * sizeof(hword));
         for (int i = 0; i < sizeof(num) / sizeof(hword); i++) {
-            buff[i] = hword(num >> (i * sizeof(hword) * 8));
+            buff[i] = hword(num >> (i * BITS_PER_DIGIT));
         }
         trim();
     }
@@ -71,7 +71,7 @@ public:
         size = 1 + sizeof(num) / sizeof(hword);
         buff = (hword*)malloc(size * sizeof(hword));
         for (int i = 0; i < sizeof(num) / sizeof(hword); i++) {
-            buff[i] = hword(num >> (i * sizeof(hword) * 8));
+            buff[i] = hword(num >> (i * BITS_PER_DIGIT));
         }
         buff[sizeof(num) / sizeof(hword)] = 0;
         trim();
@@ -180,7 +180,7 @@ public:
         BigInteger r = lnum.sign() ? -lnum : lnum;
         int s = sign() ^ lnum.sign();
         for (int i = 0; i < r.size; i++) {
-            res += (l * r[i]) << (i * sizeof(hword) * 8);
+            res += (l * r[i]) << (i * BITS_PER_DIGIT);
         }
         return s ? -res : res;
     }
@@ -196,7 +196,7 @@ public:
         res.set_size(l_positive.size + 1);
         for (int i = 0; i < l_positive.size; i++) {
             BigInteger t = multiply_with_carry(l_positive[i], r);
-            res += t << (i * sizeof(hword) * 8);
+            res += t << (i * BITS_PER_DIGIT);
         }
         return s ? -res : res;
     }
@@ -224,10 +224,10 @@ public:
         BigInteger j, t;
         while (l >= r) {
             t = r;
-            for (i = 0; l >= t; i++) t = t << (sizeof(hword) * 8);
-            t = t >> (sizeof(hword) * 8);
+            for (i = 0; l >= t; i++) t = t << BITS_PER_DIGIT;
+            t = t >> BITS_PER_DIGIT;
             for (j = 0; l >= t; j++) l = l - t;
-            res += j << ((i - 1) * sizeof(hword) * 8);
+            res += j << ((i - 1) * BITS_PER_DIGIT);
         }
 
         /*while (l>=0)
@@ -353,7 +353,7 @@ public:
         free(buff);
         buff = (hword*)malloc(size * sizeof(hword));
         for (int i = 0; i < sizeof(num) / sizeof(hword); i++) {
-            buff[i] = hword(num >> (i * sizeof(hword) * 8));
+            buff[i] = hword(num >> (i * BITS_PER_DIGIT));
         }
         trim();
         return *this;
@@ -364,7 +364,7 @@ public:
         free(buff);
         buff = (hword*)malloc(size * sizeof(hword));
         for (int i = 0; i < sizeof(num) / sizeof(hword); i++) {
-            buff[i] = hword(num >> (i * sizeof(hword) * 8));
+            buff[i] = hword(num >> (i * BITS_PER_DIGIT));
         }
         buff[sizeof(num) / sizeof(hword)] = 0;
         trim();
@@ -453,26 +453,26 @@ public:
     }
 
     BigInteger operator<<(unsigned shift) const {
-        unsigned hword_shift = shift / (sizeof(hword) * 8);
-        unsigned bit_shift = shift % (sizeof(hword) * 8);
+        unsigned hword_shift = shift / BITS_PER_DIGIT;
+        unsigned bit_shift = shift % BITS_PER_DIGIT;
 
         BigInteger res;
         res.set_size(size + hword_shift + 1);
         for (int i = 0; i <= size; ++i) {
-            res.buff[res.size - i - 1] = ((*this)[size - i - 1] >> ((sizeof(hword) * 8) - bit_shift)) | ((*this)[size - i] << bit_shift);
+            res.buff[res.size - i - 1] = ((*this)[size - i - 1] >> (BITS_PER_DIGIT - bit_shift)) | ((*this)[size - i] << bit_shift);
         }
         return res;
     }
 
     BigInteger operator>>(unsigned shift) const {
-        unsigned hword_shift = shift / (sizeof(hword) * 8);
-        unsigned bit_shift = shift % (sizeof(hword) * 8);
+        unsigned hword_shift = shift / BITS_PER_DIGIT;
+        unsigned bit_shift = shift % BITS_PER_DIGIT;
 
         if (hword_shift >= size) return sign() ? ~0 : 0;
         BigInteger res;
         res.set_size(size - hword_shift);
         for (int i = 0; i < res.size; ++i) {
-            res.buff[res.size - i - 1] = ((*this)[size - i - 1] >> bit_shift) | ((*this)[size - i] << ((sizeof(hword) * 8) - bit_shift));
+            res.buff[res.size - i - 1] = ((*this)[size - i - 1] >> bit_shift) | ((*this)[size - i] << (BITS_PER_DIGIT - bit_shift));
         }
         return res;
     }
@@ -508,6 +508,7 @@ public:
     }
 
     static const hword IO_BASE=10;
+    static const int BITS_PER_DIGIT = sizeof(hword) * 8;
 private:
 
     hword operator[](unsigned position) const {
@@ -597,7 +598,7 @@ template <typename T> std::basic_ostream<T>& operator<<(std::basic_ostream<T>& o
     try {
         // Долния ред заделя (много) повече място от необходимото. Горния заделя точно колкото е нужно, но не го ползвам, защото изглежда безумно...
         //buff=new T[1+(log( double(1<< (sizeof(hword)*8)) ) / log( double(LongNumber::IO_BASE) ))*ln.size ];
-        buff = new T[ln_positive.size * sizeof(hword) * 8];
+        buff = new T[ln_positive.size * BigInteger::BITS_PER_DIGIT];
     }
     catch (...) {
         throw;
