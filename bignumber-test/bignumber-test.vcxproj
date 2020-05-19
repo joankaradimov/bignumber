@@ -34,6 +34,7 @@
   <PropertyGroup Label="UserMacros" />
   <ItemGroup>
     <ClCompile Include="test_addition.cpp" />
+    <ClCompile Include="test_bitshift.cpp" />
     <ClCompile Include="test_construction.cpp" />
     <ClCompile Include="test_division.cpp" />
     <ClCompile Include="test_multiplication.cpp" />
