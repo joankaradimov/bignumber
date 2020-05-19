@@ -2,6 +2,8 @@
 
 #include "bignumber.hpp"
 
+// TODO: test an explicit cast to the underlying type in BigInteger
+
 TEST(TestCast, CastToLongDouble) {
     const BigInteger eight = 8;
 
