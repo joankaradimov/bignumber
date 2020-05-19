@@ -91,13 +91,13 @@ public:
         t = str;
         size = t.size;
         buff = (hword*)malloc(size * sizeof(hword));
-        for (int i = 0; i < size; ++i) buff[i] = t.buff[i];
+        memcpy(buff, t.buff, size * sizeof(hword));
     }
 
     BigInteger(const BigInteger& lnum) {
         size = lnum.size;
         buff = (hword*)malloc(size * sizeof(hword));
-        for (int i = 0; i < size; ++i) buff[i] = lnum.buff[i];
+        memcpy(buff, lnum.buff, size * sizeof(hword));
         trim();
     }
 
@@ -342,7 +342,7 @@ public:
             size = lnum.size;
             free(buff);
             buff = (hword*)malloc(size * sizeof(hword));
-            for (int i = 0; i < size; ++i) buff[i] = lnum.buff[i];
+            memcpy(buff, lnum.buff, size * sizeof(hword));
         }
         trim();
         return *this;
