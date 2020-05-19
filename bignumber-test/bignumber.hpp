@@ -39,6 +39,32 @@ inline std::pair<unsigned __int16, unsigned __int16> multiply_with_carry(unsigne
     return std::pair<unsigned __int16, unsigned __int16>(result >> 16, result);
 }
 
+template <typename T>
+std::pair<unsigned __int8, T> add_with_carry(unsigned __int8 carry, T a, T b) {
+    throw "Not Implemented";
+}
+
+template <>
+inline std::pair<unsigned __int8, unsigned __int64> add_with_carry(unsigned __int8 carry, unsigned __int64 a, unsigned __int64 b) {
+    unsigned __int64 result_low;
+    carry = _addcarryx_u64(carry, a, b, &result_low);
+    return std::pair<unsigned __int8, unsigned __int64>(carry, result_low);
+}
+
+template <>
+inline std::pair<unsigned __int8, unsigned __int32> add_with_carry(unsigned __int8 carry, unsigned __int32 a, unsigned __int32 b) {
+    unsigned __int32 result_low;
+    carry = _addcarryx_u32(carry, a, b, &result_low);
+    return std::pair<unsigned __int8, unsigned __int32>(carry, result_low);
+}
+
+template <>
+inline std::pair<unsigned __int8, unsigned __int16> add_with_carry(unsigned __int8 carry, unsigned __int16 a, unsigned __int16 b) {
+    unsigned __int16 result_low;
+    carry = _addcarry_u16(carry, a, b, &result_low);
+    return std::pair<unsigned __int8, unsigned __int16>(carry, result_low);
+}
+
 union _word
 {
     word whole;
@@ -127,12 +153,11 @@ public:
         int s = this->sign() != r.sign();
         BigInteger res;
         res.set_size(m + 1 - s);
-        hword carry = 0;
-        _word t;
+        unsigned __int8 carry = 0;
         for (int i = 0; i < res.size; ++i) {
-            t.whole = (*this)[i] + r[i] + carry;
-            res.buff[i] = t.second_half;
-            carry = t.first_half;
+            auto result = add_with_carry(carry, (*this)[i], r[i]);
+            carry = result.first;
+            res.buff[i] = result.second;
         }
         return res;
     }
