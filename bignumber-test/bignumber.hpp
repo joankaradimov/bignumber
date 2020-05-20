@@ -238,28 +238,10 @@ public:
     }
 
     BigInteger operator/(const BigInteger& lnum) const {
-        // TODO: can this be optimized
-        BigInteger res;
         BigInteger l = sign() ? -(*this) : (*this);
         BigInteger r = lnum.sign() ? -lnum : lnum;
         int s = sign() ^ lnum.sign();
-
-        int i;
-        BigInteger j, t;
-        while (l >= r) {
-            t = r;
-            for (i = 0; l >= t; i++) t = t << BITS_PER_DIGIT;
-            t = t >> BITS_PER_DIGIT;
-            for (j = 0; l >= t; j++) l = l - t;
-            res += j << ((i - 1) * BITS_PER_DIGIT);
-        }
-
-        /*while (l>=0)
-        {
-          ++res;
-          l=l-r;
-        }
-        --res;*/
+        BigInteger res = l.divmod(r).first;
 
         return s ? -res : res;
     }
@@ -296,8 +278,13 @@ public:
         return *this;
     }
 
-    BigInteger operator%(const BigInteger& r) const {
-        return (*this) - (((*this) / r) * r);
+    BigInteger operator%(const BigInteger& lnum) const {
+        BigInteger l = sign() ? -(*this) : (*this);
+        BigInteger r = lnum.sign() ? -lnum : lnum;
+        int s = sign() ^ lnum.sign();
+        BigInteger res = l.divmod(r).second;
+
+        return s ? -res : res;
     }
 
     BigInteger operator%(int r) const {
@@ -525,6 +512,33 @@ public:
 
     template <typename T> friend std::basic_ostream<T>& operator<<(std::basic_ostream<T>&, const BigInteger&);
     template <typename T> friend std::basic_istream<T>& operator>>(std::basic_istream<T>&, BigInteger&);
+
+    std::pair<BigInteger, BigInteger> divmod(const BigInteger& other) {
+        if (other == 0) {
+            return std::pair<BigInteger, BigInteger>(1 / other[0], 1 % other[0]);
+        }
+
+        BigInteger scaled_divisor = other;
+        BigInteger remain = *this;
+        BigInteger result;
+        BigInteger multiple = 1;
+
+        while (scaled_divisor < *this) {
+            scaled_divisor <<= 1;
+            multiple <<= 1;
+        }
+
+        do {
+            if (remain >= scaled_divisor) {
+                remain -= scaled_divisor;
+                result += multiple;
+            }
+            scaled_divisor >>= 1;
+            multiple >>= 1;
+        } while (multiple != 0);
+
+        return std::pair<BigInteger, BigInteger>(result, remain);
+    }
 
     void printbin() const {
         for (int i = size - 1; i >= 0; --i) {
