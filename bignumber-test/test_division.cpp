@@ -67,3 +67,8 @@ TEST(TestDivision, DividesAndAssignsVeryBigIntegers) {
     EXPECT_EQ(very_long_number /= very_long_number, 1);
     EXPECT_EQ(very_long_number, 1);
 }
+
+TEST(TestDivision, DivisionByZero) {
+    BigInteger number = 1;
+    EXPECT_DEATH(number / 0, "");
+}
