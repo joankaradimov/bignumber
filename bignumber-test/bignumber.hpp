@@ -147,7 +147,7 @@ public:
 
     BigInteger operator~() const {
         BigInteger res(*this);
-        for (int i = 0; i < res.size; ++i)
+        for (unsigned i = 0; i < res.size; ++i)
             res.buff[i] = ~res.buff[i];
         return res;
     }
@@ -168,7 +168,7 @@ public:
         BigInteger res;
         res.set_size(m + 1 - s);
         unsigned __int8 carry = 0;
-        for (int i = 0; i < res.size; ++i) {
+        for (unsigned i = 0; i < res.size; ++i) {
             auto result = add_with_carry(carry, (*this)[i], r[i]);
             carry = result.first;
             res.buff[i] = result.second;
@@ -218,7 +218,7 @@ public:
         BigInteger l = sign() ? -(*this) : (*this);
         BigInteger r = lnum.sign() ? -lnum : lnum;
         int s = sign() ^ lnum.sign();
-        for (int i = 0; i < r.size; i++) {
+        for (unsigned i = 0; i < r.size; i++) {
             res += (l * r[i]) << (i * BITS_PER_DIGIT);
         }
         return s ? -res : res;
@@ -233,7 +233,7 @@ public:
         bool s = sign();
         BigInteger l_positive = s ? -(*this) : (*this);
         res.set_size(l_positive.size + 1);
-        for (int i = 0; i < l_positive.size; i++) {
+        for (unsigned i = 0; i < l_positive.size; i++) {
             BigInteger t = multiply_with_carry(l_positive[i], r);
             res += t << (i * BITS_PER_DIGIT);
         }
@@ -349,7 +349,7 @@ public:
 
     bool operator==(const BigInteger& other) const {
         // TODO: optimize -- do not iterate numbers of different sizes
-        for (int i = 0; i < max(this->size, other.size); i++) {
+        for (unsigned i = 0; i < max(this->size, other.size); i++) {
             if ((*this)[i] != other[i]) {
                 return false;
             }
@@ -442,7 +442,7 @@ public:
     }
 
     BigInteger& operator++() {
-        for (int i = 0; i < size; ++i) {
+        for (unsigned i = 0; i < size; ++i) {
             buff[i] += 1;
 
             if (buff[i] != 0) {
@@ -459,7 +459,7 @@ public:
     }
 
     BigInteger& operator--() {
-        for (int i = 0; i < size - 1; ++i) {
+        for (unsigned i = 0; i < size - 1; ++i) {
             buff[i] -= 1;
 
             if (buff[i] != hword(~0ll)) {
@@ -482,7 +482,7 @@ public:
 
         BigInteger res;
         res.set_size(size + hword_shift + 1);
-        for (int i = 0; i <= size; ++i) {
+        for (unsigned i = 0; i <= size; ++i) {
             res.buff[res.size - i - 1] = ((*this)[size - i - 1] >> (BITS_PER_DIGIT - bit_shift)) | ((*this)[size - i] << bit_shift);
         }
         return res;
@@ -495,7 +495,7 @@ public:
         if (hword_shift >= size) return sign() ? ~0 : 0;
         BigInteger res;
         res.set_size(size - hword_shift);
-        for (int i = 0; i < res.size; ++i) {
+        for (unsigned i = 0; i < res.size; ++i) {
             res.buff[res.size - i - 1] = ((*this)[size - i - 1] >> bit_shift) | ((*this)[size - i] << (BITS_PER_DIGIT - bit_shift));
         }
         return res;
@@ -577,7 +577,7 @@ private:
 
     void trim() {
         hword s = sign() ? ~0 : 0;
-        int i;
+        unsigned i;
         for (i = 0; i < size - 1 && buff[size - i - 1] == s; ++i) {
             if ((s != 0 && oldest(buff[size - i - 2]) == 0) || (s == 0 && oldest(buff[size - i - 2]) != 0)) break;
         }
@@ -589,7 +589,7 @@ private:
     }
 
     hword* buff;
-    int size;
+    unsigned size;
 };
 
 template <typename T> BigInteger operator+(T l, const BigInteger& r) {
