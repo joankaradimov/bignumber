@@ -11,7 +11,6 @@ typedef unsigned __int16 hword;
 typedef unsigned __int32 word;
 
 #define MIN_SHORT_VAL (1 << (BigInteger::BITS_PER_DIGIT - 1))
-#define MAX_SHORT_VAL (MIN_SHORT_VAL - 1)
 
 template <typename T>
 std::pair<T, T> multiply_with_carry(T a, T b) {
@@ -428,20 +427,11 @@ public:
     }
 
     BigInteger& operator++() {
-        _word t;
-        int s = sign();
-        for (int i = 0; i < size; ++i)
-        {
-            t.whole = (*this)[i] + 1;
-            buff[i] = t.second_half;
-            if (t.first_half == 0)
-            {
-                if (buff[size - 1] == MIN_SHORT_VAL)
-                {
-                    set_size(size + 1);
-                    buff[size - 1] = 0;
-                }
-                return *this;
+        for (int i = 0; i < size; ++i) {
+            buff[i] += 1;
+
+            if (buff[i] != 0) {
+                break;
             }
         }
         return *this;
@@ -454,22 +444,20 @@ public:
     }
 
     BigInteger& operator--() {
-        _word t;
-        int s = sign();
-        for (int i = 0; i < size; ++i)
-        {
-            t.whole = (*this)[i] - 1;
-            buff[i] = t.second_half;
-            if (t.first_half == 0)
-            {
-                if (buff[size - 1] == MAX_SHORT_VAL)
-                {
-                    set_size(size + 1);
-                    buff[size - 1] = ~0;
-                }
+        for (int i = 0; i < size - 1; ++i) {
+            buff[i] -= 1;
+
+            if (buff[i] != hword(~0ll)) {
                 return *this;
             }
         }
+
+        int leading_hword_index = size - 1;
+        if (buff[leading_hword_index] == MIN_SHORT_VAL) {
+            set_size(size + 1);
+        }
+        buff[leading_hword_index] -= 1;
+
         return *this;
     }
 
