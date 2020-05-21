@@ -90,16 +90,6 @@ inline std::pair<unsigned __int16, unsigned __int16> udivmod(unsigned __int16 hi
     return std::pair<unsigned __int16, unsigned __int16>(dividend / divisor, dividend % divisor);
 }
 
-union _word
-{
-    word whole;
-    struct
-    {
-        hword second_half;
-        hword first_half;
-    };
-};
-
 class BigInteger
 {
 public:
