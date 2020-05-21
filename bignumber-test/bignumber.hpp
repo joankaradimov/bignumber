@@ -8,7 +8,6 @@
 #define oldest(a) ( !!(a&(1<<(sizeof(a)*8-1))) )
 
 typedef unsigned __int16 hword;
-typedef unsigned __int32 word;
 
 #define MIN_SHORT_VAL (1 << (BigInteger::BITS_PER_DIGIT - 1))
 
