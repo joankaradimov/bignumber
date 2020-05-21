@@ -15,6 +15,7 @@ TEST(TestDivision, DividesBigIntegersAndPrimitiveIntegers) {
     EXPECT_EQ(four / 1, 4);
     EXPECT_EQ(8 / four, 2);
     EXPECT_EQ(400 / four, 100);
+    EXPECT_EQ(BigInteger("400000000000000000000000000000000000000") / 4, "100000000000000000000000000000000000000");
 }
 
 TEST(TestDivision, DividesBigIntegersAndStrings) {
