@@ -531,8 +531,8 @@ public:
 
     void printbin() const {
         for (int i = size - 1; i >= 0; --i) {
-            // TODO: use simpler iteration
-            for (int mask = MIN_SHORT_VAL; mask; mask >>= 1) {
+            for (int bit_index = BITS_PER_DIGIT - 1; bit_index >= 0; bit_index--) {
+                hword mask = 1 << bit_index;
                 std::cout << ((buff[i] & mask) ? 1 : 0);
             }
         }
