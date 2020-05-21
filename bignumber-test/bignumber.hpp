@@ -64,6 +64,32 @@ inline std::pair<unsigned __int8, unsigned __int16> add_with_carry(unsigned __in
     return std::pair<unsigned __int8, unsigned __int16>(carry, result_low);
 }
 
+template <typename T>
+std::pair<T, T> udivmod(T high_dividend, T low_dividend, T divisor) {
+    throw "Not Implemented";
+}
+
+template <>
+inline std::pair<unsigned __int64, unsigned __int64> udivmod(unsigned __int64 high_dividend, unsigned __int64 low_dividend, unsigned __int64 divisor) {
+    unsigned __int64 remainder;
+    unsigned __int64 result = _udiv128(high_dividend, low_dividend, divisor, &remainder);
+    return std::pair<unsigned __int64, unsigned __int64>(result, remainder);
+}
+
+template <>
+inline std::pair<unsigned __int32, unsigned __int32> udivmod(unsigned __int32 high_dividend, unsigned __int32 low_dividend, unsigned __int32 divisor) {
+    unsigned __int32 remainder;
+    unsigned __int64 dividend = (unsigned __int64(high_dividend) << 32) | low_dividend;
+    unsigned __int32 result = _udiv64(dividend, divisor, &remainder);
+    return std::pair<unsigned __int32, unsigned __int32>(result, remainder);
+}
+
+template <>
+inline std::pair<unsigned __int16, unsigned __int16> udivmod(unsigned __int16 high_dividend, unsigned __int16 low_dividend, unsigned __int16 divisor) {
+    unsigned __int32 dividend = (unsigned __int32(high_dividend) << 16) | low_dividend;
+    return std::pair<unsigned __int16, unsigned __int16>(dividend / divisor, dividend % divisor);
+}
+
 union _word
 {
     word whole;
@@ -253,14 +279,13 @@ public:
         int s = sign();
         BigInteger res;
         BigInteger l = s ? -(*this) : (*this);
-        _word t;
+
         res.set_size(l.size);
         for (int i = l.size; i > 0; --i)
         {
-            t.first_half = l[i];
-            t.second_half = l[i - 1];
-            res.buff[i - 1] = (hword)(t.whole / r);
-            l.buff[i - 1] = (hword)(t.whole % r);
+            auto result = udivmod(l[i], l[i - 1], r);
+            res.buff[i - 1] = result.first;
+            l.buff[i - 1] = result.second;
         }
         return s ? -res : res;
     }
