@@ -560,7 +560,7 @@ public:
     }
 
     static const hword IO_BASE=10;
-    static const int BITS_PER_DIGIT = sizeof(hword) * 8;
+    static const size_t BITS_PER_DIGIT = sizeof(hword) * 8;
 private:
 
     hword operator[](unsigned position) const {
@@ -650,7 +650,7 @@ template <typename T> std::basic_ostream<T>& operator<<(std::basic_ostream<T>& o
     try {
         // Долния ред заделя (много) повече място от необходимото. Горния заделя точно колкото е нужно, но не го ползвам, защото изглежда безумно...
         //buff=new T[1+(log( double(1<< (sizeof(hword)*8)) ) / log( double(LongNumber::IO_BASE) ))*ln.size ];
-        buff = new T[ln_positive.size * BigInteger::BITS_PER_DIGIT];
+        buff = new T[BigInteger::BITS_PER_DIGIT * ln_positive.size];
     }
     catch (...) {
         throw;
