@@ -214,6 +214,7 @@ public:
     }
 
     BigInteger operator*(const BigInteger& lnum) const {
+        // TODO: implement Karatsuba, maybe?
         BigInteger res;
         BigInteger l = sign() ? -(*this) : (*this);
         BigInteger r = lnum.sign() ? -lnum : lnum;
