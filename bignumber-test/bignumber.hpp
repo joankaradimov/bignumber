@@ -458,6 +458,16 @@ public:
         return buff[0];
     }
 
+    explicit operator bool() const {
+        for (unsigned i = 0; i < this->size; i++) {
+            if ((*this)[i] != 0) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
     BigInteger operator++(int) {
         BigInteger old = *this;
         ++(*this);
@@ -542,7 +552,7 @@ public:
 
     std::pair<BigInteger, BigInteger> divmod(const BigInteger& other) {
         // TODO: Can this be optimized by implementing division via multiplication https://research.swtch.com/divmult?
-        if (other == 0) {
+        if (!other) {
             // This will blow up with a CPU error
             return std::pair<BigInteger, BigInteger>(1 / other[0], 1 % other[0]);
         }
@@ -564,7 +574,7 @@ public:
             }
             scaled_divisor >>= 1;
             multiple >>= 1;
-        } while (multiple != 0);
+        } while (multiple);
 
         return std::pair<BigInteger, BigInteger>(result, remain);
     }
