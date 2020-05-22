@@ -149,12 +149,30 @@ public:
         trim();
     }
 
-    BigInteger(const char* str) {
-        BigInteger t;
-        t = str;
-        size = t.size;
-        buff = (hword*)malloc(size * sizeof(hword));
-        memcpy(buff, t.buff, size * sizeof(hword));
+    BigInteger(const char* str): BigInteger() {
+        int sign = 0;
+
+        if (*str == '+') {
+            ++str;
+        }
+        else if (*str == '-') {
+            sign = 1;
+            ++str;
+        }
+
+        for (int i = 0; str[i]; ++i) {
+            // TODO: read multiple decimal digits at once
+            if (str[i] < '0' || str[i] > '9') break;
+            hword digit = str[i] - '0';
+            (*this) *= IO_BASE;
+            (*this) += digit;
+        }
+
+        if (sign) {
+            *this = -(*this);
+        }
+
+        trim();
     }
 
     BigInteger(const BigInteger& lnum) {
@@ -373,62 +391,28 @@ public:
         return !(*this == r);
     }
 
-    const BigInteger& operator=(const BigInteger& lnum) {
-        if (this != &lnum) {
-            size = lnum.size;
+    const BigInteger& operator=(const BigInteger& number) {
+        if (this != &number) {
+            size = number.size;
             free(buff);
             buff = (hword*)malloc(size * sizeof(hword));
-            memcpy(buff, lnum.buff, size * sizeof(hword));
+            memcpy(buff, number.buff, size * sizeof(hword));
         }
-        trim();
         return *this;
     }
 
-    const BigInteger& operator=(int num) {
-        size = sizeof(num) / sizeof(hword);
-        free(buff);
-        buff = (hword*)malloc(size * sizeof(hword));
-        for (int i = 0; i < sizeof(num) / sizeof(hword); i++) {
-            buff[i] = hword(num >> (i * BITS_PER_DIGIT));
-        }
-        trim();
+    const BigInteger& operator=(int number) {
+        std::swap(*this, BigInteger(number));
         return *this;
     }
 
-    const BigInteger& operator=(unsigned num) {
-        size = 1 + sizeof(num) / sizeof(hword);
-        free(buff);
-        buff = (hword*)malloc(size * sizeof(hword));
-        for (int i = 0; i < sizeof(num) / sizeof(hword); i++) {
-            buff[i] = hword(num >> (i * BITS_PER_DIGIT));
-        }
-        buff[sizeof(num) / sizeof(hword)] = 0;
-        trim();
+    const BigInteger& operator=(unsigned number) {
+        std::swap(*this, BigInteger(number));
         return *this;
     }
 
-    const BigInteger& operator=(const char* str) {
-        (*this) = 0;
-        int s = 0;
-
-        if (*str == '+') {
-            ++str;
-        }
-        else if (*str == '-') {
-            s = 1;
-            ++str;
-        }
-
-        for (int i = 0; str[i]; ++i) {
-            // TODO: read multiple decimal digits at once
-            if (str[i] < '0' || str[i] > '9') break;
-            hword digit = str[i] - '0';
-            (*this) *= IO_BASE;
-            (*this) += digit;
-        }
-
-        *this = s ? -(*this) : (*this);
-        trim();
+    const BigInteger& operator=(const char* decimal_string) {
+        std::swap(*this, BigInteger(decimal_string));
         return *this;
     }
 
