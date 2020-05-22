@@ -80,6 +80,38 @@ template <> inline std::pair<uint16, uint16> udivmod(uint16 high_dividend, uint1
     return std::pair<uint16, uint16>(dividend / divisor, dividend % divisor);
 }
 
+template <typename T> T shift_left(T high, T low, uint8 shift) {
+    throw "Not Implemented";
+}
+
+template <> inline uint64 shift_left(uint64 high, uint64 low, uint8 shift) {
+    throw __shiftleft128(low, high, shift);
+}
+
+template <> inline uint32 shift_left(uint32 high, uint32 low, uint8 shift) {
+    return (uint64(low) >> (32 - shift)) | (uint64(high) << shift);
+}
+
+template <> inline uint16 shift_left(uint16 high, uint16 low, uint8 shift) {
+    return (uint32(low) >> (16 - shift)) | (uint32(high) << shift);
+}
+
+template <typename T> T shift_right(T high, T low, uint8 shift) {
+    throw "Not Implemented";
+}
+
+template <> inline uint64 shift_right(uint64 high, uint64 low, uint8 shift) {
+    throw __shiftright128(low, high, shift);
+}
+
+template <> inline uint32 shift_right(uint32 high, uint32 low, uint8 shift) {
+    return (uint64(low) >> shift) | (uint64(high) << (32 - shift));
+}
+
+template <> inline uint16 shift_right(uint16 high, uint16 low, uint8 shift) {
+    return (uint32(low) >> shift) | (uint32(high) << (16 - shift));
+}
+
 class BigInteger
 {
 public:
@@ -473,8 +505,9 @@ public:
 
         BigInteger res;
         res.set_size(size + hword_shift + 1);
-        for (unsigned i = 0; i <= size; ++i) {
-            res.buff[res.size - i - 1] = ((*this)[size - i - 1] >> (BITS_PER_DIGIT - bit_shift)) | ((*this)[size - i] << bit_shift);
+        res.buff[hword_shift] = shift_left((*this)[0], hword(0), bit_shift);
+        for (unsigned i = 0; i < size; ++i) {
+            res.buff[hword_shift + i + 1] = shift_left((*this)[i + 1], (*this)[i], bit_shift);
         }
         return res;
     }
@@ -487,7 +520,7 @@ public:
         BigInteger res;
         res.set_size(size - hword_shift);
         for (unsigned i = 0; i < res.size; ++i) {
-            res.buff[res.size - i - 1] = ((*this)[size - i - 1] >> bit_shift) | ((*this)[size - i] << (BITS_PER_DIGIT - bit_shift));
+            res.buff[res.size - i - 1] = shift_right((*this)[size - i], (*this)[size - i - 1], bit_shift);
         }
         return res;
     }
