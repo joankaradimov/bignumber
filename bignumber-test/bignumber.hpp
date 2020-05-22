@@ -604,7 +604,9 @@ private:
         hword s = sign() ? ~0 : 0;
         unsigned i;
         for (i = 0; i < size - 1 && buff[size - i - 1] == s; ++i) {
-            if ((s != 0 && oldest(buff[size - i - 2]) == 0) || (s == 0 && oldest(buff[size - i - 2]) != 0)) break;
+            if ((s != 0 && oldest(buff[size - i - 2]) == 0) || (s == 0 && oldest(buff[size - i - 2]) != 0)) {
+                break;
+            }
         }
         set_size(size - i);
     }
