@@ -532,7 +532,7 @@ public:
         BigInteger scaled_divisor = other;
         BigInteger remain = *this;
         BigInteger result;
-        BigInteger multiple = 1;
+        BigInteger multiple = hword(1);
 
         while (scaled_divisor < *this) {
             scaled_divisor <<= 1;
