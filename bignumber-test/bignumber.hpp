@@ -117,8 +117,7 @@ class BigInteger
 public:
     BigInteger() {
         size = 1;
-        buff = (hword*)malloc(sizeof(hword));
-        *buff = 0;
+        buff = new hword[1]{ 0 };
     }
 
     template <typename T> BigInteger(T num) {
@@ -127,7 +126,7 @@ public:
             size += 1;
         }
 
-        buff = (hword*)malloc(size * sizeof(hword));
+        buff = new hword[size];
         for (int i = 0; i < sizeof(num) / sizeof(hword); i++) {
             buff[i] = hword(num >> (i * BITS_PER_DIGIT));
         }
@@ -139,10 +138,7 @@ public:
 
     BigInteger(std::pair<hword, hword> num) {
         size = 3;
-        buff = (hword*)malloc(size * sizeof(hword));
-        buff[0] = num.second;
-        buff[1] = num.first;
-        buff[2] = 0;
+        buff = new hword[size]{ num.second, num.first, 0 };
         trim();
     }
 
@@ -174,13 +170,13 @@ public:
 
     BigInteger(const BigInteger& lnum) {
         size = lnum.size;
-        buff = (hword*)malloc(size * sizeof(hword));
+        buff = new hword[size];
         memcpy(buff, lnum.buff, size * sizeof(hword));
         trim();
     }
 
     ~BigInteger() {
-        free(buff);
+        delete[] buff;
     }
 
     BigInteger operator~() const {
@@ -391,8 +387,8 @@ public:
     const BigInteger& operator=(const BigInteger& number) {
         if (this != &number) {
             size = number.size;
-            free(buff);
-            buff = (hword*)malloc(size * sizeof(hword));
+            delete[] buff;
+            buff = new hword[size];
             memcpy(buff, number.buff, size * sizeof(hword));
         }
         return *this;
@@ -564,8 +560,12 @@ private:
 
     void set_size(unsigned new_size) {
         hword sign = oldest(this->buff[size - 1]) ? ~0 : 0;
-        buff = (hword*)realloc(buff, new_size * sizeof(hword));
-        for (unsigned i = size; i < new_size; ++i) buff[i] = sign;
+        hword* new_buff = new hword[new_size];
+        memcpy(new_buff, buff, std::min(size, new_size) * sizeof(hword));
+        for (unsigned i = size; i < new_size; ++i) new_buff[i] = sign;
+        delete[] buff;
+
+        buff = new_buff;
         size = new_size;
     }
 
