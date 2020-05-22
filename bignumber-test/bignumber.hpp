@@ -11,80 +11,68 @@ typedef unsigned __int16 hword;
 
 #define MIN_SHORT_VAL (1 << (BigInteger::BITS_PER_DIGIT - 1))
 
-template <typename T>
-std::pair<T, T> multiply_with_carry(T a, T b) {
+template <typename T> std::pair<T, T> multiply_with_carry(T a, T b) {
     throw "Not Implemented";
 }
 
-template <>
-inline std::pair<unsigned __int64, unsigned __int64> multiply_with_carry(unsigned __int64 a, unsigned __int64 b) {
+template <> inline std::pair<unsigned __int64, unsigned __int64> multiply_with_carry(unsigned __int64 a, unsigned __int64 b) {
     unsigned __int64 result_high;
     unsigned __int64 result_low = _umul128(a, b, &result_high);
     return std::pair<unsigned __int64, unsigned __int64>(result_high, result_low);
 }
 
-template <>
-inline std::pair<unsigned __int32, unsigned __int32> multiply_with_carry(unsigned __int32 a, unsigned __int32 b) {
+template <> inline std::pair<unsigned __int32, unsigned __int32> multiply_with_carry(unsigned __int32 a, unsigned __int32 b) {
     unsigned __int64 result = a;
     result *= b;
     return std::pair<unsigned __int32, unsigned __int32>(result >> 32, result);
 }
 
-template <>
-inline std::pair<unsigned __int16, unsigned __int16> multiply_with_carry(unsigned __int16 a, unsigned __int16 b) {
+template <> inline std::pair<unsigned __int16, unsigned __int16> multiply_with_carry(unsigned __int16 a, unsigned __int16 b) {
     unsigned __int32 result = a;
     result *= b;
     return std::pair<unsigned __int16, unsigned __int16>(result >> 16, result);
 }
 
-template <typename T>
-std::pair<unsigned __int8, T> add_with_carry(unsigned __int8 carry, T a, T b) {
+template <typename T> std::pair<unsigned __int8, T> add_with_carry(unsigned __int8 carry, T a, T b) {
     throw "Not Implemented";
 }
 
-template <>
-inline std::pair<unsigned __int8, unsigned __int64> add_with_carry(unsigned __int8 carry, unsigned __int64 a, unsigned __int64 b) {
+template <> inline std::pair<unsigned __int8, unsigned __int64> add_with_carry(unsigned __int8 carry, unsigned __int64 a, unsigned __int64 b) {
     unsigned __int64 result_low;
     carry = _addcarryx_u64(carry, a, b, &result_low);
     return std::pair<unsigned __int8, unsigned __int64>(carry, result_low);
 }
 
-template <>
-inline std::pair<unsigned __int8, unsigned __int32> add_with_carry(unsigned __int8 carry, unsigned __int32 a, unsigned __int32 b) {
+template <> inline std::pair<unsigned __int8, unsigned __int32> add_with_carry(unsigned __int8 carry, unsigned __int32 a, unsigned __int32 b) {
     unsigned __int32 result_low;
     carry = _addcarryx_u32(carry, a, b, &result_low);
     return std::pair<unsigned __int8, unsigned __int32>(carry, result_low);
 }
 
-template <>
-inline std::pair<unsigned __int8, unsigned __int16> add_with_carry(unsigned __int8 carry, unsigned __int16 a, unsigned __int16 b) {
+template <> inline std::pair<unsigned __int8, unsigned __int16> add_with_carry(unsigned __int8 carry, unsigned __int16 a, unsigned __int16 b) {
     unsigned __int16 result_low;
     carry = _addcarry_u16(carry, a, b, &result_low);
     return std::pair<unsigned __int8, unsigned __int16>(carry, result_low);
 }
 
-template <typename T>
-std::pair<T, T> udivmod(T high_dividend, T low_dividend, T divisor) {
+template <typename T> std::pair<T, T> udivmod(T high_dividend, T low_dividend, T divisor) {
     throw "Not Implemented";
 }
 
-template <>
-inline std::pair<unsigned __int64, unsigned __int64> udivmod(unsigned __int64 high_dividend, unsigned __int64 low_dividend, unsigned __int64 divisor) {
+template <> inline std::pair<unsigned __int64, unsigned __int64> udivmod(unsigned __int64 high_dividend, unsigned __int64 low_dividend, unsigned __int64 divisor) {
     unsigned __int64 remainder;
     unsigned __int64 result = _udiv128(high_dividend, low_dividend, divisor, &remainder);
     return std::pair<unsigned __int64, unsigned __int64>(result, remainder);
 }
 
-template <>
-inline std::pair<unsigned __int32, unsigned __int32> udivmod(unsigned __int32 high_dividend, unsigned __int32 low_dividend, unsigned __int32 divisor) {
+template <> inline std::pair<unsigned __int32, unsigned __int32> udivmod(unsigned __int32 high_dividend, unsigned __int32 low_dividend, unsigned __int32 divisor) {
     unsigned __int32 remainder;
     unsigned __int64 dividend = (unsigned __int64(high_dividend) << 32) | low_dividend;
     unsigned __int32 result = _udiv64(dividend, divisor, &remainder);
     return std::pair<unsigned __int32, unsigned __int32>(result, remainder);
 }
 
-template <>
-inline std::pair<unsigned __int16, unsigned __int16> udivmod(unsigned __int16 high_dividend, unsigned __int16 low_dividend, unsigned __int16 divisor) {
+template <> inline std::pair<unsigned __int16, unsigned __int16> udivmod(unsigned __int16 high_dividend, unsigned __int16 low_dividend, unsigned __int16 divisor) {
     unsigned __int32 dividend = (unsigned __int32(high_dividend) << 16) | low_dividend;
     return std::pair<unsigned __int16, unsigned __int16>(dividend / divisor, dividend % divisor);
 }
