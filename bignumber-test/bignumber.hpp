@@ -481,7 +481,7 @@ public:
         unsigned hword_shift = shift / BITS_PER_DIGIT;
         unsigned bit_shift = shift % BITS_PER_DIGIT;
 
-        if (hword_shift >= size) return sign() ? ~0 : 0;
+        if (hword_shift >= size) return sign() ? -1 : 0;
         BigInteger res;
         res.set_size(size - hword_shift);
         for (unsigned i = 0; i < res.size; ++i) {
