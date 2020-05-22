@@ -9,8 +9,6 @@
 
 typedef unsigned __int16 hword;
 
-#define MIN_SHORT_VAL (1 << (BigInteger::BITS_PER_DIGIT - 1))
-
 template <typename T> std::pair<T, T> multiply_with_carry(T a, T b) {
     throw "Not Implemented";
 }
@@ -461,7 +459,7 @@ public:
         }
 
         int leading_hword_index = size - 1;
-        if (buff[leading_hword_index] == MIN_SHORT_VAL) {
+        if (buff[leading_hword_index] == (hword(1) << (BigInteger::BITS_PER_DIGIT - 1))) {
             set_size(size + 1);
         }
         buff[leading_hword_index] -= 1;
