@@ -7,7 +7,7 @@
 #define max(a, b)  (((a) > (b)) ? (a) : (b))
 #define oldest(a) ( !!(a&(1<<(sizeof(a)*8-1))) )
 
-typedef unsigned __int16 hword;
+typedef unsigned __int32 hword;
 
 template <typename T> std::pair<T, T> multiply_with_carry(T a, T b) {
     throw "Not Implemented";
