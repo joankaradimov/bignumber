@@ -591,10 +591,10 @@ private:
         return this->buff[position];
     }
 
-    void set_size(int new_size) {
+    void set_size(unsigned new_size) {
         hword sign = oldest(this->buff[size - 1]) ? ~0 : 0;
         buff = (hword*)realloc(buff, new_size * sizeof(hword));
-        for (int i = size; i < new_size; ++i) buff[i] = sign;
+        for (unsigned i = size; i < new_size; ++i) buff[i] = sign;
         size = new_size;
     }
 
