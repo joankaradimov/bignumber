@@ -549,7 +549,7 @@ public:
         }
     }
 
-    static const Digit IO_BASE=10;
+    static const Digit IO_BASE = 10;
     static const size_t BITS_PER_DIGIT = sizeof(Digit) * 8;
 private:
 
