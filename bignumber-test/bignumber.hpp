@@ -5,8 +5,6 @@
 #include <intrin.h>
 #include <iostream>
 
-#define oldest(a) ( !!(a&(1<<(sizeof(a)*8-1))) )
-
 template <typename T> std::pair<T, T> multiply_with_carry(T a, T b) {
     throw "Not Implemented";
 }
@@ -556,15 +554,14 @@ public:
 private:
 
     Digit operator[](unsigned position) const {
-        if (position >= size) return oldest(this->buff[size - 1]) ? ~0 : 0;
+        if (position >= size) return sign() ? ~0 : 0;
         return this->buff[position];
     }
 
     void set_size(unsigned new_size) {
-        Digit sign = oldest(this->buff[size - 1]) ? ~0 : 0;
         Digit* new_buff = new Digit[new_size];
         memcpy(new_buff, buff, std::min(size, new_size) * sizeof(Digit));
-        for (unsigned i = size; i < new_size; ++i) new_buff[i] = sign;
+        for (unsigned i = size; i < new_size; ++i) new_buff[i] = sign() ? ~0 : 0;
         delete[] buff;
 
         buff = new_buff;
@@ -575,7 +572,7 @@ private:
         Digit s = sign() ? ~0 : 0;
         unsigned i;
         for (i = 0; i < size - 1 && buff[size - i - 1] == s; ++i) {
-            if ((s != 0 && oldest(buff[size - i - 2]) == 0) || (s == 0 && oldest(buff[size - i - 2]) != 0)) {
+            if ((s != 0 && oldest_bit(size - i - 2) == 0) || (s == 0 && oldest_bit(size - i - 2) != 0)) {
                 break;
             }
         }
@@ -583,7 +580,11 @@ private:
     }
 
     bool sign() const {
-        return oldest(this->buff[size - 1]);
+        return oldest_bit(size - 1);
+    }
+
+    bool oldest_bit(unsigned digit_index) const {
+        return !!(buff[digit_index] & (1 << (BITS_PER_DIGIT - 1)));
     }
 
     Digit* buff;
