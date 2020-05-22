@@ -1,10 +1,10 @@
 #pragma once
 
+#include <algorithm>
 #include <stdlib.h>
 #include <intrin.h>
 #include <iostream>
 
-#define max(a, b)  (((a) > (b)) ? (a) : (b))
 #define oldest(a) ( !!(a&(1<<(sizeof(a)*8-1))) )
 
 typedef unsigned __int32 hword;
@@ -201,7 +201,7 @@ public:
     }
 
     BigInteger operator+(const BigInteger& r) const {
-        int m = max(this->size, r.size);
+        int m = std::max(this->size, r.size);
         int s = this->sign() != r.sign();
         BigInteger res;
         res.set_size(m + 1 - s);
@@ -350,7 +350,7 @@ public:
 
     bool operator<(const BigInteger& other) const {
         // TODO: optimize -- do not iterate numbers of different sizes
-        for (int i = max(this->size, other.size) - 1; i >= 0; i--) {
+        for (int i = std::max(this->size, other.size) - 1; i >= 0; i--) {
             if ((*this)[i] < other[i]) {
                 return true;
             }
@@ -375,7 +375,7 @@ public:
 
     bool operator==(const BigInteger& other) const {
         // TODO: optimize -- do not iterate numbers of different sizes
-        for (unsigned i = 0; i < max(this->size, other.size); i++) {
+        for (unsigned i = 0; i < std::max(this->size, other.size); i++) {
             if ((*this)[i] != other[i]) {
                 return false;
             }
