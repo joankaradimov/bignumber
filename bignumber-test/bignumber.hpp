@@ -541,6 +541,7 @@ public:
     template <typename T> friend std::basic_istream<T>& operator>>(std::basic_istream<T>&, BigInteger&);
 
     std::pair<BigInteger, BigInteger> divmod(const BigInteger& other) {
+        // TODO: Can this be optimized by implementing division via multiplication https://research.swtch.com/divmult?
         if (other == 0) {
             // This will blow up with a CPU error
             return std::pair<BigInteger, BigInteger>(1 / other[0], 1 % other[0]);
