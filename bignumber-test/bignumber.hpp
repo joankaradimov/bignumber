@@ -121,22 +121,19 @@ public:
         *buff = 0;
     }
 
-    BigInteger(int num) {
+    template <typename T> BigInteger(T num) {
         size = sizeof(num) / sizeof(hword);
-        buff = (hword*)malloc(size * sizeof(hword));
-        for (int i = 0; i < sizeof(num) / sizeof(hword); i++) {
-            buff[i] = hword(num >> (i * BITS_PER_DIGIT));
+        if (std::is_unsigned<T>::value) {
+            size += 1;
         }
-        trim();
-    }
 
-    BigInteger(unsigned int num) {
-        size = 1 + sizeof(num) / sizeof(hword);
         buff = (hword*)malloc(size * sizeof(hword));
         for (int i = 0; i < sizeof(num) / sizeof(hword); i++) {
             buff[i] = hword(num >> (i * BITS_PER_DIGIT));
         }
-        buff[sizeof(num) / sizeof(hword)] = 0;
+        if (std::is_unsigned<T>::value) {
+            buff[sizeof(num) / sizeof(hword)] = 0;
+        }
         trim();
     }
 
@@ -401,18 +398,8 @@ public:
         return *this;
     }
 
-    const BigInteger& operator=(int number) {
+    template <typename T> const BigInteger& operator=(T number) {
         std::swap(*this, BigInteger(number));
-        return *this;
-    }
-
-    const BigInteger& operator=(unsigned number) {
-        std::swap(*this, BigInteger(number));
-        return *this;
-    }
-
-    const BigInteger& operator=(const char* decimal_string) {
-        std::swap(*this, BigInteger(decimal_string));
         return *this;
     }
 
