@@ -464,6 +464,8 @@ public:
         return *this;
     }
 
+    // TODO: implement & | ^ &= |= ^=
+
     BigInteger operator<<(unsigned shift) const {
         unsigned hword_shift = shift / BITS_PER_DIGIT;
         unsigned bit_shift = shift % BITS_PER_DIGIT;
