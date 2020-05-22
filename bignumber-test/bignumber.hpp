@@ -7,8 +7,6 @@
 
 #define oldest(a) ( !!(a&(1<<(sizeof(a)*8-1))) )
 
-typedef unsigned __int32 hword;
-
 template <typename T> std::pair<T, T> multiply_with_carry(T a, T b) {
     throw "Not Implemented";
 }
@@ -112,33 +110,35 @@ template <> inline uint16 shift_right(uint16 high, uint16 low, uint8 shift) {
     return (uint32(low) >> shift) | (uint32(high) << (16 - shift));
 }
 
+typedef unsigned __int32 Digit;
+
 class BigInteger
 {
 public:
     BigInteger() {
         size = 1;
-        buff = new hword[1]{ 0 };
+        buff = new Digit[1]{ 0 };
     }
 
     template <typename T> BigInteger(T num) {
-        size = sizeof(num) / sizeof(hword);
+        size = sizeof(num) / sizeof(Digit);
         if (std::is_unsigned<T>::value) {
             size += 1;
         }
 
-        buff = new hword[size];
-        for (int i = 0; i < sizeof(num) / sizeof(hword); i++) {
-            buff[i] = hword(num >> (i * BITS_PER_DIGIT));
+        buff = new Digit[size];
+        for (int i = 0; i < sizeof(num) / sizeof(Digit); i++) {
+            buff[i] = Digit(num >> (i * BITS_PER_DIGIT));
         }
         if (std::is_unsigned<T>::value) {
-            buff[sizeof(num) / sizeof(hword)] = 0;
+            buff[sizeof(num) / sizeof(Digit)] = 0;
         }
         trim();
     }
 
-    BigInteger(std::pair<hword, hword> num) {
+    BigInteger(std::pair<Digit, Digit> num) {
         size = 3;
-        buff = new hword[size]{ num.second, num.first, 0 };
+        buff = new Digit[size]{ num.second, num.first, 0 };
         trim();
     }
 
@@ -156,7 +156,7 @@ public:
         for (int i = 0; str[i]; ++i) {
             // TODO: read multiple decimal digits at once
             if (str[i] < '0' || str[i] > '9') break;
-            hword digit = str[i] - '0';
+            Digit digit = str[i] - '0';
             (*this) *= IO_BASE;
             (*this) += digit;
         }
@@ -170,8 +170,8 @@ public:
 
     BigInteger(const BigInteger& lnum) {
         size = lnum.size;
-        buff = new hword[size];
-        memcpy(buff, lnum.buff, size * sizeof(hword));
+        buff = new Digit[size];
+        memcpy(buff, lnum.buff, size * sizeof(Digit));
         trim();
     }
 
@@ -210,7 +210,7 @@ public:
         return res;
     }
 
-    BigInteger operator+(hword r) const {
+    BigInteger operator+(Digit r) const {
         return *this + BigInteger(r); // TODO: optimize
     }
 
@@ -220,7 +220,7 @@ public:
         return *this;
     }
 
-    BigInteger& operator+=(hword r) {
+    BigInteger& operator+=(Digit r) {
         // TODO: optimize -- do not create extra instances
         *this = (*this) + r;
         return *this;
@@ -230,7 +230,7 @@ public:
         return (*this) + (-r);
     }
 
-    BigInteger operator-(hword r) const {
+    BigInteger operator-(Digit r) const {
         return *this - BigInteger(r); // TODO: optimize
     }
 
@@ -240,7 +240,7 @@ public:
         return *this;
     }
 
-    BigInteger& operator-=(hword r) {
+    BigInteger& operator-=(Digit r) {
         // TODO: optimize -- do not create extra instances
         *this = (*this) - r;
         return *this;
@@ -258,7 +258,7 @@ public:
         return s ? -res : res;
     }
 
-    BigInteger operator*(hword r) const {
+    BigInteger operator*(Digit r) const {
         BigInteger res;
         bool s = sign();
         BigInteger l_positive = s ? -(*this) : (*this);
@@ -276,7 +276,7 @@ public:
         return *this;
     }
 
-    BigInteger& operator*=(hword r) {
+    BigInteger& operator*=(Digit r) {
         // TODO: optimize -- do not create extra instances
         *this = (*this) * r;
         return *this;
@@ -291,7 +291,7 @@ public:
         return s ? -res : res;
     }
 
-    BigInteger operator/(hword r) const {
+    BigInteger operator/(Digit r) const {
         int s = sign();
         BigInteger res;
         BigInteger l = s ? -(*this) : (*this);
@@ -312,7 +312,7 @@ public:
         return *this;
     }
 
-    BigInteger& operator/=(hword r) {
+    BigInteger& operator/=(Digit r) {
         // TODO: optimize -- do not create extra instances
         *this = (*this) / r;
         return *this;
@@ -327,7 +327,7 @@ public:
         return s ? -res : res;
     }
 
-    BigInteger operator%(hword r) const {
+    BigInteger operator%(Digit r) const {
         // TODO: optimize -- implement a divmod method and use it here
         return (*this) - (((*this) / r) * r);
     }
@@ -338,7 +338,7 @@ public:
         return *this;
     }
 
-    BigInteger& operator%=(hword r) {
+    BigInteger& operator%=(Digit r) {
         // TODO: optimize -- do not create extra instances
         *this = (*this) % r;
         return *this;
@@ -388,8 +388,8 @@ public:
         if (this != &number) {
             size = number.size;
             delete[] buff;
-            buff = new hword[size];
-            memcpy(buff, number.buff, size * sizeof(hword));
+            buff = new Digit[size];
+            memcpy(buff, number.buff, size * sizeof(Digit));
         }
         return *this;
     }
@@ -409,7 +409,7 @@ public:
         return result;
     }
 
-    explicit operator hword() const {
+    explicit operator Digit() const {
         return buff[0];
     }
 
@@ -450,13 +450,13 @@ public:
         for (unsigned i = 0; i < size - 1; ++i) {
             buff[i] -= 1;
 
-            if (buff[i] != hword(~0ll)) {
+            if (buff[i] != Digit(~0ll)) {
                 return *this;
             }
         }
 
         int leading_hword_index = size - 1;
-        if (buff[leading_hword_index] == (hword(1) << (BigInteger::BITS_PER_DIGIT - 1))) {
+        if (buff[leading_hword_index] == (Digit(1) << (BigInteger::BITS_PER_DIGIT - 1))) {
             set_size(size + 1);
         }
         buff[leading_hword_index] -= 1;
@@ -470,7 +470,7 @@ public:
 
         BigInteger res;
         res.set_size(size + hword_shift + 1);
-        res.buff[hword_shift] = shift_left((*this)[0], hword(0), bit_shift);
+        res.buff[hword_shift] = shift_left((*this)[0], Digit(0), bit_shift);
         for (unsigned i = 0; i < size; ++i) {
             res.buff[hword_shift + i + 1] = shift_left((*this)[i + 1], (*this)[i], bit_shift);
         }
@@ -515,7 +515,7 @@ public:
         BigInteger scaled_divisor = other;
         BigInteger remain = *this;
         BigInteger result;
-        BigInteger multiple = hword(1);
+        BigInteger multiple = Digit(1);
 
         while (scaled_divisor < *this) {
             scaled_divisor <<= 1;
@@ -537,7 +537,7 @@ public:
     void printbin() const {
         for (int i = size - 1; i >= 0; --i) {
             for (int bit_index = BITS_PER_DIGIT - 1; bit_index >= 0; bit_index--) {
-                hword mask = 1 << bit_index;
+                Digit mask = 1 << bit_index;
                 std::cout << ((buff[i] & mask) ? 1 : 0);
             }
         }
@@ -549,19 +549,19 @@ public:
         }
     }
 
-    static const hword IO_BASE=10;
-    static const size_t BITS_PER_DIGIT = sizeof(hword) * 8;
+    static const Digit IO_BASE=10;
+    static const size_t BITS_PER_DIGIT = sizeof(Digit) * 8;
 private:
 
-    hword operator[](unsigned position) const {
+    Digit operator[](unsigned position) const {
         if (position >= size) return oldest(this->buff[size - 1]) ? ~0 : 0;
         return this->buff[position];
     }
 
     void set_size(unsigned new_size) {
-        hword sign = oldest(this->buff[size - 1]) ? ~0 : 0;
-        hword* new_buff = new hword[new_size];
-        memcpy(new_buff, buff, std::min(size, new_size) * sizeof(hword));
+        Digit sign = oldest(this->buff[size - 1]) ? ~0 : 0;
+        Digit* new_buff = new Digit[new_size];
+        memcpy(new_buff, buff, std::min(size, new_size) * sizeof(Digit));
         for (unsigned i = size; i < new_size; ++i) new_buff[i] = sign;
         delete[] buff;
 
@@ -570,7 +570,7 @@ private:
     }
 
     void trim() {
-        hword s = sign() ? ~0 : 0;
+        Digit s = sign() ? ~0 : 0;
         unsigned i;
         for (i = 0; i < size - 1 && buff[size - i - 1] == s; ++i) {
             if ((s != 0 && oldest(buff[size - i - 2]) == 0) || (s == 0 && oldest(buff[size - i - 2]) != 0)) {
@@ -584,7 +584,7 @@ private:
         return oldest(this->buff[size - 1]);
     }
 
-    hword* buff;
+    Digit* buff;
     unsigned size;
 };
 
