@@ -447,7 +447,8 @@ public:
     }
 
     template <typename T> const BigInteger& operator=(T number) {
-        std::swap(*this, BigInteger(number));
+        BigInteger temporary = number;
+        std::swap(*this, temporary);
         return *this;
     }
 
