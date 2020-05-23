@@ -4,6 +4,20 @@
 
 // TODO: test an explicit cast to the underlying type in BigInteger
 
+TEST(TestCast, CastToString) {
+    BigInteger zero = 0;
+    EXPECT_EQ(std::string(zero), std::string("0"));
+
+    BigInteger eight = 8;
+    EXPECT_EQ(std::string(eight), std::string("8"));
+
+    BigInteger negative = -10000;
+    EXPECT_EQ(std::string(negative), std::string("-10000"));
+
+    BigInteger large = "1234567890123456789012345678901234567890123456789012345678901234567890";
+    EXPECT_EQ(std::string(large), std::string("1234567890123456789012345678901234567890123456789012345678901234567890"));
+}
+
 TEST(TestCast, CastToLongDouble) {
     const BigInteger eight = 8;
 

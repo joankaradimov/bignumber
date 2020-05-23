@@ -452,6 +452,28 @@ public:
         return *this;
     }
 
+    explicit operator std::string() const {
+        if (!*this) {
+            return "0";
+        }
+
+        std::string result;
+        bool is_negative = sign();
+        BigInteger temporary = is_negative ? -*this : *this;
+
+        for (int i = 0; temporary; ++i) {
+            result.push_back('0' + Digit(temporary % BigInteger::IO_BASE));
+            temporary /= BigInteger::IO_BASE;
+        }
+
+        if (is_negative) {
+            result.push_back('-');
+        }
+
+        std::reverse(result.begin(), result.end());
+        return result;
+    }
+
     explicit operator long double() const {
         long double result = 0.0;
         long double multiplier = pow(2.0, BITS_PER_DIGIT);
@@ -694,37 +716,8 @@ template <typename T> bool operator!=(T l, const BigInteger& r) {
     return r != l;
 }
 
-template <typename T> std::basic_ostream<T>& operator<<(std::basic_ostream<T>& os, const BigInteger& ln) {
-    BigInteger ln_positive;
-    if (ln.sign()) {
-        ln_positive = -ln;
-        os << '-';
-    }
-    else {
-        ln_positive = ln;
-    }
-    int i;
-    T* buff;
-    try {
-        // Долния ред заделя (много) повече място от необходимото. Горния заделя точно колкото е нужно, но не го ползвам, защото изглежда безумно...
-        //buff=new T[1+(log( double(1<< (sizeof(hword)*8)) ) / log( double(LongNumber::IO_BASE) ))*ln.size ];
-        buff = new T[BigInteger::BITS_PER_DIGIT * ln_positive.size];
-    }
-    catch (...) {
-        throw;
-    }
-
-    for (i = 0; ; ++i) {
-        buff[i] = '0' + (ln_positive % BigInteger::IO_BASE).buff[0];
-        ln_positive = ln_positive / BigInteger::IO_BASE;
-        if (ln_positive == 0) break;
-    }
-    for (; i >= 0; --i) {
-        os << buff[i];
-    }
-    delete[] buff;
-
-    return os;
+template <typename T> std::basic_ostream<T>& operator<<(std::basic_ostream<T>& os, const BigInteger& number) {
+    return os << std::string(number);
 }
 
 template <typename T> std::basic_istream<T>& operator>>(std::basic_istream<T>& is, BigInteger& ln) {
