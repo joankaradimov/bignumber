@@ -446,7 +446,7 @@ public:
         return *this;
     }
 
-    template <typename T> const BigInteger& operator=(T number) {
+    template <typename T, typename std::enable_if_t<std::is_integral_v<T>>* = nullptr> const BigInteger& operator=(T number) {
         BigInteger temporary = number;
         std::swap(*this, temporary);
         return *this;
