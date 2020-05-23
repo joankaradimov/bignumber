@@ -723,25 +723,24 @@ template <typename T> std::basic_ostream<T>& operator<<(std::basic_ostream<T>& o
 
 template <typename T> std::basic_istream<T>& operator>>(std::basic_istream<T>& is, BigInteger& ln) {
     ln = 0;
-    int s = 0;
+    int is_negative = false;
     T ch;
     is >> ch;
     if (ch == '-') {
-        s = 1;
+        is_negative = true;
         is >> ch;
     }
     else if (ch == '+') {
-        s = 0;
         is >> ch;
     }
 
     for (;;) {
-        ln = ln * BigInteger::IO_BASE;
-        ln = ln + (ch - '0');
+        ln *= BigInteger::IO_BASE;
+        ln += ch - '0';
         ch = is.peek();
         if (ch < '0' || ch > '9' || isspace(ch)) break;
         is >> ch;
     }
-    if (s) ln = -ln;
+    if (is_negative) ln = -ln;
     return is;
 }
