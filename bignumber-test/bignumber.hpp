@@ -125,7 +125,7 @@ public:
         }
 
         buff = new Digit[size];
-        for (int i = 0; i < digits_for(num); i++) {
+        for (unsigned i = 0; i < digits_for(num); i++) {
             buff[i] = Digit(num >> (i * BITS_PER_DIGIT));
         }
         if (std::is_unsigned<T>::value) {
@@ -636,8 +636,8 @@ private:
         return !!(buff[digit_index] & (1 << (BITS_PER_DIGIT - 1)));
     }
 
-    template <typename T> static int digits_for(T number) {
-        return std::max(size_t(1), sizeof(number) / sizeof(Digit));
+    template <typename T> static unsigned digits_for(T number) {
+        return std::max<unsigned>(1, sizeof(number) / sizeof(Digit));
     }
 
     Digit* buff;
