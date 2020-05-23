@@ -118,7 +118,7 @@ public:
         buff = new Digit[1]{ 0 };
     }
 
-    template <typename T> BigInteger(T num) {
+    template <typename T, typename std::enable_if_t<std::is_integral_v<T>>* = nullptr> BigInteger(T num) {
         size = digits_for(num);
         if (std::is_unsigned<T>::value) {
             size += 1;
@@ -212,7 +212,7 @@ public:
         return *this + BigInteger(r); // TODO: optimize
     }
 
-    template <typename T> BigInteger operator+(T other) const {
+    template <typename T, typename std::enable_if_t<std::is_integral_v<T>>* = nullptr> BigInteger operator+(T other) const {
         return *this + BigInteger(other);
     }
 
@@ -228,7 +228,7 @@ public:
         return *this;
     }
 
-    template <typename T> BigInteger& operator+=(T other) {
+    template <typename T, typename std::enable_if_t<std::is_integral_v<T>>* = nullptr> BigInteger& operator+=(T other) {
         // TODO: optimize -- do not create extra instances
         *this = (*this) + other;
         return *this;
@@ -242,7 +242,7 @@ public:
         return *this - BigInteger(r); // TODO: optimize
     }
 
-    template <typename T> BigInteger operator-(T other) const {
+    template <typename T, typename std::enable_if_t<std::is_integral_v<T>>* = nullptr> BigInteger operator-(T other) const {
         return *this - BigInteger(other);
     }
 
@@ -258,7 +258,7 @@ public:
         return *this;
     }
 
-    template <typename T> BigInteger& operator-=(T other) {
+    template <typename T, typename std::enable_if_t<std::is_integral_v<T>>* = nullptr> BigInteger& operator-=(T other) {
         // TODO: optimize -- do not create extra instances
         *this = (*this) - other;
         return *this;
@@ -288,7 +288,7 @@ public:
         return s ? -res : res;
     }
 
-    template <typename T> BigInteger operator*(T other) const {
+    template <typename T, typename std::enable_if_t<std::is_integral_v<T>>* = nullptr> BigInteger operator*(T other) const {
         return *this * BigInteger(other);
     }
 
@@ -304,7 +304,7 @@ public:
         return *this;
     }
 
-    template <typename T> BigInteger& operator*=(T other) {
+    template <typename T, typename std::enable_if_t<std::is_integral_v<T>>* = nullptr> BigInteger& operator*=(T other) {
         // TODO: optimize -- do not create extra instances
         *this = (*this) * other;
         return *this;
@@ -333,7 +333,7 @@ public:
         return s ? -res : res;
     }
 
-    template <typename T> BigInteger operator/(T other) const {
+    template <typename T, typename std::enable_if_t<std::is_integral_v<T>>* = nullptr> BigInteger operator/(T other) const {
         return *this / BigInteger(other);
     }
 
@@ -349,7 +349,7 @@ public:
         return *this;
     }
 
-    template <typename T> BigInteger& operator/=(T other) {
+    template <typename T, typename std::enable_if_t<std::is_integral_v<T>>* = nullptr> BigInteger& operator/=(T other) {
         // TODO: optimize -- do not create extra instances
         *this = (*this) / other;
         return *this;
@@ -369,7 +369,7 @@ public:
         return (*this) - (((*this) / r) * r);
     }
 
-    template <typename T> BigInteger operator%(T other) const {
+    template <typename T, typename std::enable_if_t<std::is_integral_v<T>>* = nullptr> BigInteger operator%(T other) const {
         return *this % BigInteger(other);
     }
 
@@ -385,7 +385,7 @@ public:
         return *this;
     }
 
-    template <typename T> BigInteger& operator%=(T other) {
+    template <typename T, typename std::enable_if_t<std::is_integral_v<T>>* = nullptr> BigInteger& operator%=(T other) {
         // TODO: optimize -- do not create extra instances
         *this = (*this) % other;
         return *this;
