@@ -141,13 +141,13 @@ public:
     }
 
     BigInteger(const char* str): BigInteger() {
-        int sign = 0;
+        bool is_negative = false;
 
         if (*str == '+') {
             ++str;
         }
         else if (*str == '-') {
-            sign = 1;
+            is_negative = true;
             ++str;
         }
 
@@ -159,7 +159,7 @@ public:
             (*this) += digit;
         }
 
-        if (sign) {
+        if (is_negative) {
             *this = -(*this);
         }
 
