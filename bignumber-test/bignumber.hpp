@@ -642,7 +642,7 @@ private:
         return !!(buff[digit_index] & (1 << (BITS_PER_DIGIT - 1)));
     }
 
-    template <typename T> static unsigned digits_for(T number) {
+    template <typename T> constexpr static unsigned digits_for(T number) {
         return std::max<unsigned>(1, sizeof(number) / sizeof(Digit));
     }
 
