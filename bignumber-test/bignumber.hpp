@@ -119,17 +119,17 @@ public:
     }
 
     template <typename T> BigInteger(T num) {
-        size = sizeof(num) / sizeof(Digit);
+        size = digits_for(num);
         if (std::is_unsigned<T>::value) {
             size += 1;
         }
 
         buff = new Digit[size];
-        for (int i = 0; i < sizeof(num) / sizeof(Digit); i++) {
+        for (int i = 0; i < digits_for(num); i++) {
             buff[i] = Digit(num >> (i * BITS_PER_DIGIT));
         }
         if (std::is_unsigned<T>::value) {
-            buff[sizeof(num) / sizeof(Digit)] = 0;
+            buff[digits_for(num)] = 0;
         }
         trim();
     }
@@ -634,6 +634,10 @@ private:
 
     bool oldest_bit(unsigned digit_index) const {
         return !!(buff[digit_index] & (1 << (BITS_PER_DIGIT - 1)));
+    }
+
+    template <typename T> static int digits_for(T number) {
+        return std::max(size_t(1), sizeof(number) / sizeof(Digit));
     }
 
     Digit* buff;
