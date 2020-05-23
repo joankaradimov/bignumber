@@ -5,14 +5,14 @@
 #include <intrin.h>
 #include <iostream>
 
-template <typename T> std::pair<T, T> multiply_with_carry(T a, T b) {
-    throw "Not Implemented";
-}
-
 typedef unsigned __int8 uint8;
 typedef unsigned __int16 uint16;
 typedef unsigned __int32 uint32;
 typedef unsigned __int64 uint64;
+
+template <typename T> std::pair<T, T> multiply_with_carry(T a, T b) {
+    throw "Not Implemented";
+}
 
 template <> inline std::pair<uint64, uint64> multiply_with_carry(uint64 a, uint64 b) {
     uint64 result_high;
