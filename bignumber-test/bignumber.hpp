@@ -212,6 +212,10 @@ public:
         return *this + BigInteger(r); // TODO: optimize
     }
 
+    template <typename T> BigInteger operator+(T other) const {
+        return *this + BigInteger(other);
+    }
+
     BigInteger& operator+=(const BigInteger& r) {
         // TODO: optimize -- do not create extra instances
         *this = (*this) + r;
@@ -224,12 +228,22 @@ public:
         return *this;
     }
 
+    template <typename T> BigInteger& operator+=(T other) {
+        // TODO: optimize -- do not create extra instances
+        *this = (*this) + other;
+        return *this;
+    }
+
     BigInteger operator-(const BigInteger& r) const {
         return (*this) + (-r);
     }
 
     BigInteger operator-(Digit r) const {
         return *this - BigInteger(r); // TODO: optimize
+    }
+
+    template <typename T> BigInteger operator-(T other) const {
+        return *this - BigInteger(other);
     }
 
     BigInteger& operator-=(const BigInteger& r) {
@@ -241,6 +255,12 @@ public:
     BigInteger& operator-=(Digit r) {
         // TODO: optimize -- do not create extra instances
         *this = (*this) - r;
+        return *this;
+    }
+
+    template <typename T> BigInteger& operator-=(T other) {
+        // TODO: optimize -- do not create extra instances
+        *this = (*this) - other;
         return *this;
     }
 
@@ -268,6 +288,10 @@ public:
         return s ? -res : res;
     }
 
+    template <typename T> BigInteger operator*(T other) const {
+        return *this * BigInteger(other);
+    }
+
     BigInteger& operator*=(const BigInteger& r) {
         // TODO: optimize -- do not create extra instances
         *this = (*this) * r;
@@ -277,6 +301,12 @@ public:
     BigInteger& operator*=(Digit r) {
         // TODO: optimize -- do not create extra instances
         *this = (*this) * r;
+        return *this;
+    }
+
+    template <typename T> BigInteger& operator*=(T other) {
+        // TODO: optimize -- do not create extra instances
+        *this = (*this) * other;
         return *this;
     }
 
@@ -304,6 +334,10 @@ public:
         return s ? -res : res;
     }
 
+    template <typename T> BigInteger operator/(T other) const {
+        return *this / BigInteger(other);
+    }
+
     BigInteger& operator/=(const BigInteger& r) {
         // TODO: optimize -- do not create extra instances
         *this = (*this) / r;
@@ -313,6 +347,12 @@ public:
     BigInteger& operator/=(Digit r) {
         // TODO: optimize -- do not create extra instances
         *this = (*this) / r;
+        return *this;
+    }
+
+    template <typename T> BigInteger& operator/=(T other) {
+        // TODO: optimize -- do not create extra instances
+        *this = (*this) / other;
         return *this;
     }
 
@@ -330,6 +370,10 @@ public:
         return (*this) - (((*this) / r) * r);
     }
 
+    template <typename T> BigInteger operator%(T other) const {
+        return *this % BigInteger(other);
+    }
+
     BigInteger& operator%=(const BigInteger& r) {
         // TODO: optimize -- do not create extra instances
         *this = (*this) % r;
@@ -339,6 +383,12 @@ public:
     BigInteger& operator%=(Digit r) {
         // TODO: optimize -- do not create extra instances
         *this = (*this) % r;
+        return *this;
+    }
+
+    template <typename T> BigInteger& operator%=(T other) {
+        // TODO: optimize -- do not create extra instances
+        *this = (*this) % other;
         return *this;
     }
 
