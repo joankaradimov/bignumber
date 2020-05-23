@@ -397,6 +397,10 @@ public:
     }
 
     bool operator<(const BigInteger& other) const {
+        if (this->sign() != other.sign()) {
+            return this->sign();
+        }
+
         // TODO: optimize -- do not iterate numbers of different sizes
         for (int i = std::max(this->size, other.size) - 1; i >= 0; i--) {
             if ((*this)[i] < other[i]) {

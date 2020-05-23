@@ -14,6 +14,14 @@ TEST(TestRelations, LessThan) {
     EXPECT_FALSE(BigInteger("1000000000000000000001") < BigInteger("1000000000000000000000"));
 }
 
+TEST(TestRelations, LessThanWithNegative) {
+    EXPECT_LT(BigInteger(-1), BigInteger(0));
+    EXPECT_LT(BigInteger(-1), BigInteger(5));
+    EXPECT_LT(BigInteger(-1), BigInteger("10000000000000000000000000000000000000000"));
+    EXPECT_LT(BigInteger("-10000000000000000000000000000000000000000"), BigInteger(-1));
+    EXPECT_LT(BigInteger("-1000000000000000000000000000000000000000000000000000000000000000000"), BigInteger("-10000000000000000000000000000000000000000"));
+}
+
 TEST(TestRelations, GreaterThan) {
     EXPECT_GT(BigInteger(1), BigInteger(0));
     EXPECT_GT(BigInteger(3), BigInteger(2));
