@@ -596,7 +596,7 @@ public:
     void printbin() const {
         for (int i = size - 1; i >= 0; --i) {
             for (int bit_index = BITS_PER_DIGIT - 1; bit_index >= 0; bit_index--) {
-                Digit mask = 1 << bit_index;
+                Digit mask = Digit(1) << bit_index;
                 std::cout << ((buff[i] & mask) ? 1 : 0);
             }
         }
