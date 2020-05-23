@@ -665,7 +665,7 @@ private:
     }
 
     bool oldest_bit(unsigned digit_index) const {
-        return !!(buff[digit_index] & (1 << (BITS_PER_DIGIT - 1)));
+        return !!(buff[digit_index] & (Digit(1) << (BITS_PER_DIGIT - 1)));
     }
 
     template <typename T> constexpr static unsigned digits_for(T number) {
