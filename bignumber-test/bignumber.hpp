@@ -81,7 +81,7 @@ template <typename T> T shift_left(T high, T low, uint8 shift) {
 }
 
 template <> inline uint64 shift_left(uint64 high, uint64 low, uint8 shift) {
-    throw __shiftleft128(low, high, shift);
+    return __shiftleft128(low, high, shift);
 }
 
 template <> inline uint32 shift_left(uint32 high, uint32 low, uint8 shift) {
@@ -97,7 +97,7 @@ template <typename T> T shift_right(T high, T low, uint8 shift) {
 }
 
 template <> inline uint64 shift_right(uint64 high, uint64 low, uint8 shift) {
-    throw __shiftright128(low, high, shift);
+    return __shiftright128(low, high, shift);
 }
 
 template <> inline uint32 shift_right(uint32 high, uint32 low, uint8 shift) {
