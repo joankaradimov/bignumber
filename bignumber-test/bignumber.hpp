@@ -118,19 +118,24 @@ public:
         buff = new Digit[1]{ 0 };
     }
 
-    template <typename T, typename std::enable_if_t<std::is_integral_v<T>>* = nullptr> BigInteger(T num) {
+    template <typename T, typename std::enable_if_t<std::is_integral_v<T>&& std::is_signed_v<T>>* = nullptr> BigInteger(T num) {
         size = digits_for(num);
-        if (std::is_unsigned<T>::value) {
-            size += 1;
-        }
-
         buff = new Digit[size];
-        for (unsigned i = 0; i < digits_for(num); i++) {
+        for (unsigned i = 0; i < size; i++) {
             buff[i] = Digit(num >> (i * BITS_PER_DIGIT));
         }
-        if (std::is_unsigned<T>::value) {
-            buff[digits_for(num)] = 0;
+
+        trim();
+    }
+
+    template <typename T, typename std::enable_if_t<std::is_integral_v<T> && std::is_unsigned_v<T>>* = nullptr> BigInteger(T num) {
+        size = digits_for(num) + 1;
+        buff = new Digit[size];
+        for (unsigned i = 0; i < size - 1; i++) {
+            buff[i] = Digit(num >> (i * BITS_PER_DIGIT));
         }
+        buff[size - 1] = 0;
+
         trim();
     }
 
