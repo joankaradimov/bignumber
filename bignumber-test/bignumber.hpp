@@ -325,8 +325,7 @@ public:
         BigInteger l = s ? -(*this) : (*this);
 
         res.set_size(l.size);
-        for (int i = l.size; i > 0; --i)
-        {
+        for (int i = l.size; i > 0; --i) {
             auto result = udivmod(l[i], l[i - 1], r);
             res.buff[i - 1] = result.first;
             l.buff[i - 1] = result.second;
