@@ -10,8 +10,15 @@ typedef unsigned __int16 uint16;
 typedef unsigned __int32 uint32;
 typedef unsigned __int64 uint64;
 
+template <typename T> struct doubled_size {};
+template <> struct doubled_size<uint8> { typedef uint16 type; };
+template <> struct doubled_size<uint16> { typedef uint32 type; };
+template <> struct doubled_size<uint32> { typedef uint64 type; };
+
 template <typename T> std::pair<T, T> multiply_with_carry(T a, T b) {
-    throw "Not Implemented";
+    doubled_size<T>::type result = a;
+    result *= b;
+    return std::pair<T, T>(result >> (sizeof(T) * 8), result);
 }
 
 template <> inline std::pair<uint64, uint64> multiply_with_carry(uint64 a, uint64 b) {
@@ -20,20 +27,11 @@ template <> inline std::pair<uint64, uint64> multiply_with_carry(uint64 a, uint6
     return std::pair<uint64, uint64>(result_high, result_low);
 }
 
-template <> inline std::pair<uint32, uint32> multiply_with_carry(uint32 a, uint32 b) {
-    uint64 result = a;
-    result *= b;
-    return std::pair<uint32, uint32>(result >> 32, result);
-}
-
-template <> inline std::pair<uint16, uint16> multiply_with_carry(uint16 a, uint16 b) {
-    uint32 result = a;
-    result *= b;
-    return std::pair<uint16, uint16>(result >> 16, result);
-}
-
 template <typename T> std::pair<uint8, T> add_with_carry(uint8 carry, T a, T b) {
-    throw "Not Implemented";
+    doubled_size<T>::type result = carry;
+    result += a;
+    result += b;
+    return std::pair<uint8, T>(result >> (sizeof(T) * 8), result);
 }
 
 template <> inline std::pair<uint8, uint64> add_with_carry(uint8 carry, uint64 a, uint64 b) {
@@ -55,7 +53,8 @@ template <> inline std::pair<uint8, uint16> add_with_carry(uint8 carry, uint16 a
 }
 
 template <typename T> std::pair<T, T> udivmod(T high_dividend, T low_dividend, T divisor) {
-    throw "Not Implemented";
+    doubled_size<T>::type dividend = (doubled_size<T>::type(high_dividend) << (sizeof(T) * 8)) | low_dividend;
+    return std::pair<T, T>(dividend / divisor, dividend % divisor);
 }
 
 template <> inline std::pair<uint64, uint64> udivmod(uint64 high_dividend, uint64 low_dividend, uint64 divisor) {
@@ -71,41 +70,20 @@ template <> inline std::pair<uint32, uint32> udivmod(uint32 high_dividend, uint3
     return std::pair<uint32, uint32>(result, remainder);
 }
 
-template <> inline std::pair<uint16, uint16> udivmod(uint16 high_dividend, uint16 low_dividend, uint16 divisor) {
-    uint32 dividend = (uint32(high_dividend) << 16) | low_dividend;
-    return std::pair<uint16, uint16>(dividend / divisor, dividend % divisor);
-}
-
 template <typename T> T shift_left(T high, T low, uint8 shift) {
-    throw "Not Implemented";
+    return (doubled_size<T>::type(low) >> (sizeof(T) * 8 - shift)) | (doubled_size<T>::type(high) << shift);
 }
 
 template <> inline uint64 shift_left(uint64 high, uint64 low, uint8 shift) {
     return __shiftleft128(low, high, shift);
 }
 
-template <> inline uint32 shift_left(uint32 high, uint32 low, uint8 shift) {
-    return (uint64(low) >> (32 - shift)) | (uint64(high) << shift);
-}
-
-template <> inline uint16 shift_left(uint16 high, uint16 low, uint8 shift) {
-    return (uint32(low) >> (16 - shift)) | (uint32(high) << shift);
-}
-
 template <typename T> T shift_right(T high, T low, uint8 shift) {
-    throw "Not Implemented";
+    return (doubled_size<T>::type(low) >> shift) | (doubled_size<T>::type(high) << (sizeof(T) * 8 - shift));
 }
 
 template <> inline uint64 shift_right(uint64 high, uint64 low, uint8 shift) {
     return __shiftright128(low, high, shift);
-}
-
-template <> inline uint32 shift_right(uint32 high, uint32 low, uint8 shift) {
-    return (uint64(low) >> shift) | (uint64(high) << (32 - shift));
-}
-
-template <> inline uint16 shift_right(uint16 high, uint16 low, uint8 shift) {
-    return (uint32(low) >> shift) | (uint32(high) << (16 - shift));
 }
 
 typedef unsigned __int32 Digit;
