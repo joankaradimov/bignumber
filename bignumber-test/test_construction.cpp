@@ -37,3 +37,21 @@ TEST(TestConstruction, ConstructsFromOtherBigIntegers) {
     BigInteger another_one = one;
     EXPECT_EQ(one, another_one);
 }
+
+TEST(TestConstruction, ConstructsFromIntegerBounds) {
+    EXPECT_EQ(BigInteger(std::numeric_limits<unsigned __int8>::max()), "255");
+    EXPECT_EQ(BigInteger(std::numeric_limits<signed __int8>::max()), "127");
+    EXPECT_EQ(BigInteger(std::numeric_limits<signed __int8>::min()), "-128");
+
+    EXPECT_EQ(BigInteger(std::numeric_limits<unsigned __int16>::max()), "65535");
+    EXPECT_EQ(BigInteger(std::numeric_limits<signed __int16>::max()), "32767");
+    EXPECT_EQ(BigInteger(std::numeric_limits<signed __int16>::min()), "-32768");
+
+    EXPECT_EQ(BigInteger(std::numeric_limits<unsigned __int32>::max()), "4294967295");
+    EXPECT_EQ(BigInteger(std::numeric_limits<signed __int32>::max()), "2147483647");
+    EXPECT_EQ(BigInteger(std::numeric_limits<signed __int32>::min()), "-2147483648");
+
+    EXPECT_EQ(BigInteger(std::numeric_limits<unsigned __int64>::max()), "18446744073709551615");
+    EXPECT_EQ(BigInteger(std::numeric_limits<signed __int64>::max()), "9223372036854775807");
+    EXPECT_EQ(BigInteger(std::numeric_limits<signed __int64>::min()), "-9223372036854775808");
+}
