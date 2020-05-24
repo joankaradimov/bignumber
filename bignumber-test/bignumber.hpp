@@ -674,7 +674,7 @@ public:
         return *this;
     }
 
-    std::pair<BigInteger, BigInteger> divmod(const BigInteger& other) {
+    std::pair<BigInteger, BigInteger> divmod(const BigInteger& other) const {
         // TODO: Can this be optimized by implementing division via multiplication https://research.swtch.com/divmult?
         if (!other) {
             // This will blow up with a CPU error
