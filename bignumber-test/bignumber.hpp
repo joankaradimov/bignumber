@@ -547,7 +547,7 @@ public:
         return *this;
     }
 
-    explicit operator std::string() const {
+    template<typename T> explicit operator std::basic_string<T>() const {
         if (!*this) {
             return "0";
         }
@@ -558,7 +558,7 @@ public:
 
         for (int i = 0; temporary; ++i) {
             auto divmod_result = temporary.divmod(BigInteger::IO_BASE);
-            result.push_back('0' + divmod_result.second);
+            result.push_back('0' + T(divmod_result.second));
             temporary = divmod_result.first;
         }
 
