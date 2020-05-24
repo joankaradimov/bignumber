@@ -86,10 +86,9 @@ public:
 
     DigitBuffer& operator=(const DigitBuffer& other) {
         if (this != &other) {
-            size = other.size;
-            delete[] buffer;
-            buffer = new Digit[size];
-            memcpy(buffer, other.buffer, size * sizeof(Digit));
+            DigitBuffer temporary = other;
+            std::swap(buffer, temporary.buffer);
+            std::swap(size, temporary.size);
         }
         return *this;
     }
