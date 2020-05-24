@@ -174,7 +174,7 @@ public:
     }
 
     const BigInteger& operator+() const {
-        return (*this);
+        return *this;
     }
 
     BigInteger operator+(const BigInteger& r) const {
