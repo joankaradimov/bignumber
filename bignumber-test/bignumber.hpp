@@ -165,7 +165,7 @@ template <> struct doubled_size<uint16> { typedef uint32 type; };
 template <> struct doubled_size<uint32> { typedef uint64 type; };
 
 template <typename T> std::pair<T, T> multiply_with_carry(T a, T b) {
-    doubled_size<T>::type result = a;
+    typename doubled_size<T>::type result = a;
     result *= b;
     return std::pair<T, T>(result >> (sizeof(T) * 8), result);
 }
@@ -177,7 +177,7 @@ template <> inline std::pair<uint64, uint64> multiply_with_carry(uint64 a, uint6
 }
 
 template <typename T> std::pair<uint8, T> add_with_carry(uint8 carry, T a, T b) {
-    doubled_size<T>::type result = carry;
+    typename doubled_size<T>::type result = carry;
     result += a;
     result += b;
     return std::pair<uint8, T>(result >> (sizeof(T) * 8), result);
@@ -202,7 +202,7 @@ template <> inline std::pair<uint8, uint16> add_with_carry(uint8 carry, uint16 a
 }
 
 template <typename T> std::pair<T, T> udivmod(T high_dividend, T low_dividend, T divisor) {
-    doubled_size<T>::type dividend = (doubled_size<T>::type(high_dividend) << (sizeof(T) * 8)) | low_dividend;
+    typename doubled_size<T>::type dividend = (doubled_size<T>::type(high_dividend) << (sizeof(T) * 8)) | low_dividend;
     return std::pair<T, T>(dividend / divisor, dividend % divisor);
 }
 
