@@ -168,9 +168,8 @@ public:
     }
 
     BigInteger operator-() const {
-        BigInteger res(*this);
-        --res;
-        return ~res;
+        BigInteger res = ~*this;
+        return ++res;
     }
 
     const BigInteger& operator+() const {
