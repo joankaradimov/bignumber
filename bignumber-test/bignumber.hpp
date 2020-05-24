@@ -377,8 +377,8 @@ public:
     BigInteger operator*(const BigInteger& lnum) const {
         // TODO: implement Karatsuba, maybe?
         BigInteger res;
-        BigInteger l = digits.sign() ? -(*this) : (*this);
-        BigInteger r = lnum.digits.sign() ? -lnum : lnum;
+        BigInteger l = abs();
+        BigInteger r = lnum.abs();
         int s = digits.sign() ^ lnum.digits.sign();
         for (unsigned i = 0; i < r.digits.get_size(); i++) {
             res += (l * r.digits[i]) << (i * digits.BITS_PER_DIGIT);
@@ -389,7 +389,7 @@ public:
     BigInteger operator*(Digit r) const {
         BigInteger res;
         bool s = digits.sign();
-        BigInteger l_positive = s ? -(*this) : (*this);
+        BigInteger l_positive = abs();
         res.digits.set_size(l_positive.digits.get_size() + 1);
         for (unsigned i = 0; i < l_positive.digits.get_size(); i++) {
             BigInteger t = multiply_with_carry<Digit>(l_positive.digits[i], r);
@@ -421,18 +421,15 @@ public:
     }
 
     BigInteger operator/(const BigInteger& lnum) const {
-        BigInteger l = digits.sign() ? -(*this) : (*this);
-        BigInteger r = lnum.digits.sign() ? -lnum : lnum;
         int s = digits.sign() ^ lnum.digits.sign();
-        BigInteger res = l.divmod(r).first;
+        BigInteger result = abs().divmod(lnum.abs()).first;
 
-        return s ? -res : res;
+        return s ? -result : result;
     }
 
     BigInteger operator/(Digit other) const {
         int s = digits.sign();
-        BigInteger l = digits.sign() ? -(*this) : (*this);
-        auto result = l.divmod(other).first;
+        auto result = abs().divmod(other).first;
 
         return s ? -result : result;
     }
@@ -460,18 +457,15 @@ public:
     }
 
     BigInteger operator%(const BigInteger& lnum) const {
-        BigInteger l = digits.sign() ? -(*this) : (*this);
-        BigInteger r = lnum.digits.sign() ? -lnum : lnum;
         int s = digits.sign() ^ lnum.digits.sign();
-        BigInteger res = l.divmod(r).second;
+        BigInteger result = abs().divmod(lnum.abs()).second;
 
-        return s ? -res : res;
+        return s ? -result : result;
     }
 
     BigInteger operator%(Digit other) const {
         int s = digits.sign();
-        BigInteger l = digits.sign() ? -(*this) : (*this);
-        auto result = l.divmod(other).second;
+        auto result = abs().divmod(other).second;
 
         return s ? -BigInteger(result) : result;
     }
@@ -560,7 +554,7 @@ public:
 
         std::string result;
         bool is_negative = digits.sign();
-        BigInteger temporary = is_negative ? -*this : *this;
+        BigInteger temporary = abs();
 
         for (int i = 0; temporary; ++i) {
             auto divmod_result = temporary.divmod(BigInteger::IO_BASE);
@@ -729,6 +723,10 @@ public:
         for (int i = digits.get_size() - 1; i >= 0; --i) {
             std::cout << std::hex << digits[i];
         }
+    }
+
+    BigInteger abs() const {
+        return digits.sign() ? -*this : *this;
     }
 
     static const Digit IO_BASE = 10;
