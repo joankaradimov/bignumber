@@ -676,9 +676,6 @@ public:
         return *this;
     }
 
-    template <typename T> friend std::basic_ostream<T>& operator<<(std::basic_ostream<T>&, const BigInteger&);
-    template <typename T> friend std::basic_istream<T>& operator>>(std::basic_istream<T>&, BigInteger&);
-
     std::pair<BigInteger, BigInteger> divmod(const BigInteger& other) {
         // TODO: Can this be optimized by implementing division via multiplication https://research.swtch.com/divmult?
         if (!other) {
