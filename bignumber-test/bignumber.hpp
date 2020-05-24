@@ -573,11 +573,13 @@ public:
     explicit operator long double() const {
         long double result = 0.0;
         long double multiplier = pow(2.0, digits.BITS_PER_DIGIT);
-        for (int i = digits.get_size() - 1; i >= 0; i--) {
+        BigInteger positive = abs();
+
+        for (int i = positive.digits.get_size() - 1; i >= 0; i--) {
             result *= multiplier;
-            result += digits[i];
+            result += positive.digits[i];
         }
-        return result;
+        return digits.sign() ? -result : result;
     }
 
     explicit operator Digit() const {

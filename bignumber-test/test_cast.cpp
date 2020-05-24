@@ -28,6 +28,8 @@ TEST(TestCast, CastToLongDouble) {
 
     EXPECT_EQ(long double(eight << 200), pow(2.0, 203));
     EXPECT_EQ(long double(eight << 2000), INFINITY);
+
+    EXPECT_EQ(long double(-eight), -8.0);
 }
 
 TEST(TestCast, CastToBoolean) {
