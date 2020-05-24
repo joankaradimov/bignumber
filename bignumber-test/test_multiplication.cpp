@@ -11,17 +11,25 @@ TEST(TestMultiplication, MultipliesBigIntegersAndPrimitiveIntegers) {
     const BigInteger two = 2;
     EXPECT_EQ(two * 2, 4);
     EXPECT_EQ(2 * two, 4);
+
+    EXPECT_EQ(two * 5, 10);
+    EXPECT_EQ(5 * two, 10);
 }
 
 TEST(TestMultiplication, MultipliesBigIntegersAndStrings) {
     const BigInteger two = 2;
     EXPECT_EQ(two * "2", 4);
     EXPECT_EQ("2" * two, 4);
+
+    EXPECT_EQ(two * "5", 10);
+    EXPECT_EQ("5" * two, 10);
 }
 
 TEST(TestMultiplication, MultipliesVeryBigIntegers) {
     const BigInteger very_long_number = "1000000000000000000000";
     EXPECT_EQ(very_long_number * very_long_number, "1000000000000000000000000000000000000000000");
+    EXPECT_EQ(very_long_number * "500000000000000000000000000", "500000000000000000000000000000000000000000000000");
+    EXPECT_EQ("600000000000000000000000000" * very_long_number, "600000000000000000000000000000000000000000000000");
 }
 
 
