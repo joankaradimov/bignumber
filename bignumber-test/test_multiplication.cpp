@@ -32,7 +32,6 @@ TEST(TestMultiplication, MultipliesVeryBigIntegers) {
     EXPECT_EQ("600000000000000000000000000" * very_long_number, "600000000000000000000000000000000000000000000000");
 }
 
-
 TEST(TestMultiplication, MultipliesAndAssignsBigIntegers) {
     BigInteger number = 2;
     EXPECT_EQ(number *= number, 4);
