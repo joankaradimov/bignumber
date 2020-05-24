@@ -659,7 +659,40 @@ public:
         return *this;
     }
 
-    // TODO: implement & | ^ &= |= ^=
+    // TODO: implement | ^ |= ^=
+
+    BigInteger operator&(const BigInteger& other) const {
+        BigInteger result = *this;
+        result &= other;
+        return result;
+    }
+
+    Digit operator&(Digit other) const {
+        return digits[0] & other;
+    }
+
+    template <typename T, typename std::enable_if_t<std::is_integral_v<T>>* = nullptr> BigInteger operator&(T other) const {
+        return *this & BigInteger(other);
+    }
+
+    BigInteger& operator&=(const BigInteger& other) {
+        digits.set_size(std::min(digits.get_size(), other.digits.get_size()));
+        for (int i = 0; i < digits.get_size(); i++) {
+            digits[i] = digits[i] & other.digits[i];
+        }
+        return *this;
+    }
+
+    BigInteger& operator&=(Digit other) {
+        digits[0] = digits[0] & other;
+        digits.set_size(1);
+        return *this;
+    }
+
+    template <typename T, typename std::enable_if_t<std::is_integral_v<T>>* = nullptr> BigInteger& operator&=(T other) {
+        *this &= BigInteger(other);
+        return *this;
+    }
 
     BigInteger operator<<(unsigned shift) const {
         unsigned hword_shift = shift / digits.BITS_PER_DIGIT;
