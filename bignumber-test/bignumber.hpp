@@ -137,7 +137,7 @@ public:
         for (int i = 0; str[i]; ++i) {
             // TODO: read multiple decimal digits at once
             if (str[i] < '0' || str[i] > '9') break;
-            Digit digit = str[i] - '0';
+            Digit digit = Digit(str[i] - '0');
             (*this) *= IO_BASE;
             (*this) += digit;
         }
