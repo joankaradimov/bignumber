@@ -235,7 +235,7 @@ template <> inline uint64 shift_right(uint64 high, uint64 low, uint8 shift) {
     return __shiftright128(low, high, shift);
 }
 
-typedef unsigned __int32 Digit;
+typedef unsigned __int64 Digit;
 
 class BigInteger
 {
