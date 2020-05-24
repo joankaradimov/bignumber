@@ -190,8 +190,9 @@ public:
         return res;
     }
 
-    BigInteger operator+(Digit r) const {
-        return *this + BigInteger(r); // TODO: optimize
+    BigInteger operator+(Digit other) const {
+        BigInteger result = *this;
+        return result += other;
     }
 
     template <typename T, typename std::enable_if_t<std::is_integral_v<T>>* = nullptr> BigInteger operator+(T other) const {
@@ -204,9 +205,22 @@ public:
         return *this;
     }
 
-    BigInteger& operator+=(Digit r) {
-        // TODO: optimize -- do not create extra instances
-        *this = (*this) + r;
+    BigInteger& operator+=(Digit other) {
+        bool was_negative = sign();
+        auto result = add_with_carry(0, buff[0], other);
+        uint8 carry = result.first;
+        buff[0] = result.second;
+
+        for (unsigned i = 1; i < size && carry; ++i) {
+            buff[i] += 1;
+            carry = (buff[i] == 0);
+        }
+
+        bool is_negative = sign();
+        if (is_negative && !was_negative) {
+            set_size(size + 1);
+            buff[size - 1] = 0;
+        }
         return *this;
     }
 
@@ -481,19 +495,12 @@ public:
 
     BigInteger operator++(int) {
         BigInteger old = *this;
-        ++(*this);
+        (*this) += 1;
         return old;
     }
 
     BigInteger& operator++() {
-        for (unsigned i = 0; i < size; ++i) {
-            buff[i] += 1;
-
-            if (buff[i] != 0) {
-                break;
-            }
-        }
-        return *this;
+        return *this += 1;
     }
 
     BigInteger operator--(int) {
