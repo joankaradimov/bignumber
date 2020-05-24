@@ -429,18 +429,12 @@ public:
         return s ? -res : res;
     }
 
-    BigInteger operator/(Digit r) const {
+    BigInteger operator/(Digit other) const {
         int s = digits.sign();
-        BigInteger res;
-        BigInteger l = s ? -(*this) : (*this);
+        BigInteger l = digits.sign() ? -(*this) : (*this);
+        auto result = l.divmod(other).first;
 
-        res.digits.set_size(l.digits.get_size());
-        for (int i = l.digits.get_size(); i > 0; --i) {
-            auto result = udivmod<Digit>(l.digits[i], l.digits[i - 1], r);
-            res.digits[i - 1] = result.first;
-            l.digits[i - 1] = result.second;
-        }
-        return s ? -res : res;
+        return s ? -result : result;
     }
 
     template <typename T, typename std::enable_if_t<std::is_integral_v<T>>* = nullptr> BigInteger operator/(T other) const {
@@ -474,9 +468,12 @@ public:
         return s ? -res : res;
     }
 
-    BigInteger operator%(Digit r) const {
-        // TODO: optimize -- implement a divmod method and use it here
-        return (*this) - (((*this) / r) * r);
+    BigInteger operator%(Digit other) const {
+        int s = digits.sign();
+        BigInteger l = digits.sign() ? -(*this) : (*this);
+        auto result = l.divmod(other).second;
+
+        return s ? -BigInteger(result) : result;
     }
 
     template <typename T, typename std::enable_if_t<std::is_integral_v<T>>* = nullptr> BigInteger operator%(T other) const {
@@ -566,8 +563,9 @@ public:
         BigInteger temporary = is_negative ? -*this : *this;
 
         for (int i = 0; temporary; ++i) {
-            result.push_back('0' + Digit(temporary % BigInteger::IO_BASE));
-            temporary /= BigInteger::IO_BASE;
+            auto divmod_result = temporary.divmod(BigInteger::IO_BASE);
+            result.push_back('0' + divmod_result.second);
+            temporary = divmod_result.first;
         }
 
         if (is_negative) {
@@ -703,6 +701,19 @@ public:
         } while (multiple);
 
         return std::pair<BigInteger, BigInteger>(result, remain);
+    }
+
+    std::pair<BigInteger, Digit> divmod(Digit r) const {
+        BigInteger result;
+        BigInteger remain = *this;
+
+        result.digits.set_size(remain.digits.get_size());
+        for (int i = remain.digits.get_size(); i > 0; --i) {
+            auto divmod_resuilt = udivmod<Digit>(remain.digits[i], remain.digits[i - 1], r);
+            result.digits[i - 1] = divmod_resuilt.first;
+            remain.digits[i - 1] = divmod_resuilt.second;
+        }
+        return std::pair<BigInteger, Digit>(result, remain);
     }
 
     void printbin() const {
