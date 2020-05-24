@@ -5,6 +5,155 @@
 #include <intrin.h>
 #include <iostream>
 
+template <typename Digit> class DigitBuffer {
+private:
+    struct DigitProxy {
+        DigitProxy(DigitBuffer& digits_buffer, unsigned index) : digits_buffer(digits_buffer), index(index) {}
+
+        operator Digit() const {
+            if (index >= digits_buffer.size)
+                return digits_buffer.sign() ? ~0 : 0;
+            return digits_buffer.buffer[index];
+        }
+
+        Digit operator=(Digit digit) {
+            return digits_buffer.buffer[index] = digit;
+        }
+
+        DigitProxy& operator++() {
+            ++digits_buffer.buffer[index];
+            return *this;
+        }
+
+        DigitProxy& operator--() {
+            --digits_buffer.buffer[index];
+            return *this;
+        }
+
+        bool operator==(Digit other) const {
+            return digits_buffer.buffer[index] == other;
+        }
+
+        bool operator!=(Digit other) const {
+            return digits_buffer.buffer[index] != other;
+        }
+
+        DigitBuffer& digits_buffer;
+        unsigned index;
+    };
+
+public:
+    DigitBuffer(std::initializer_list<Digit> l) {
+        size = l.size();
+        buffer = new Digit[l.size()];
+        int i = 0;
+        for (Digit digit : l) {
+            buffer[i++] = digit;
+        }
+    }
+
+    template <typename T, typename std::enable_if_t<std::is_integral_v<T>&& std::is_signed_v<T>>* = nullptr> DigitBuffer(T number) {
+        size = digits_for(number);
+        buffer = new Digit[size];
+        for (unsigned i = 0; i < size; i++) {
+            buffer[i] = Digit(number >> (i * BITS_PER_DIGIT));
+        }
+
+        trim();
+    }
+
+    template <typename T, typename std::enable_if_t<std::is_integral_v<T>&& std::is_unsigned_v<T>>* = nullptr> DigitBuffer(T number) {
+        size = digits_for(number) + 1;
+        buffer = new Digit[size];
+        for (unsigned i = 0; i < size - 1; i++) {
+            buffer[i] = Digit(number >> (i * BITS_PER_DIGIT));
+        }
+        buffer[size - 1] = 0;
+
+        trim();
+    }
+
+    DigitBuffer(const DigitBuffer& other) {
+        size = other.size;
+        buffer = new Digit[size];
+        memcpy(buffer, other.buffer, size * sizeof(Digit));
+        trim();
+    }
+
+    ~DigitBuffer() {
+        delete[] buffer;
+    }
+
+    DigitBuffer& operator=(const DigitBuffer& other) {
+        if (this != &other) {
+            size = other.size;
+            delete[] buffer;
+            buffer = new Digit[size];
+            memcpy(buffer, other.buffer, size * sizeof(Digit));
+        }
+        return *this;
+    }
+
+    void set_size(unsigned new_size) {
+        Digit* new_buffer = new Digit[new_size];
+        memcpy(new_buffer, buffer, std::min(size, new_size) * sizeof(Digit));
+        for (unsigned i = size; i < new_size; ++i) new_buffer[i] = sign() ? ~0 : 0;
+        delete[] buffer;
+
+        buffer = new_buffer;
+        size = new_size;
+    }
+
+    unsigned get_size() const {
+        return size;
+    }
+
+    DigitProxy operator[](unsigned index) {
+        return DigitProxy(*this, index);
+    }
+
+    Digit operator[](unsigned index) const {
+        if (index >= size)
+            return sign() ? ~0 : 0;
+        return buffer[index];
+    }
+
+    void trim() {
+        Digit s = sign() ? ~0 : 0;
+        unsigned i;
+        for (i = 0; i < size - 1 && (*this)[size - i - 1] == s; ++i) {
+            if ((s != 0 && oldest_bit(size - i - 2) == 0) || (s == 0 && oldest_bit(size - i - 2) != 0)) {
+                break;
+            }
+        }
+        set_size(size - i);
+    }
+
+    bool sign() const {
+        return oldest_bit(size - 1);
+    }
+
+    static const size_t BITS_PER_DIGIT = sizeof(Digit) * 8;
+
+private:
+
+    bool oldest_bit(unsigned digit_index) const {
+        return !!(buffer[digit_index] & (Digit(1) << (BITS_PER_DIGIT - 1)));
+    }
+
+    template <typename T> constexpr static unsigned digits_for(T number) {
+        return std::max<unsigned>(1, sizeof(number) / sizeof(Digit));
+    }
+
+    const constexpr static unsigned immediate_buffer_size = sizeof(Digit*) / sizeof(Digit);
+
+    union {
+        Digit* buffer;
+        Digit immediate_buffer[immediate_buffer_size];
+    };
+    unsigned size;
+};
+
 typedef unsigned __int8 uint8;
 typedef unsigned __int16 uint16;
 typedef unsigned __int32 uint32;
@@ -91,37 +240,13 @@ typedef unsigned __int32 Digit;
 class BigInteger
 {
 public:
-    BigInteger() {
-        size = 1;
-        buff = new Digit[1]{ 0 };
-    }
+    BigInteger() : digits({ 0 }) { }
 
-    template <typename T, typename std::enable_if_t<std::is_integral_v<T>&& std::is_signed_v<T>>* = nullptr> BigInteger(T num) {
-        size = digits_for(num);
-        buff = new Digit[size];
-        for (unsigned i = 0; i < size; i++) {
-            buff[i] = Digit(num >> (i * BITS_PER_DIGIT));
-        }
+    BigInteger(std::pair<Digit, Digit> num) : digits({ num.second, num.first, 0 }) { }
 
-        trim();
-    }
+    BigInteger(const BigInteger& other) : digits(other.digits) { }
 
-    template <typename T, typename std::enable_if_t<std::is_integral_v<T> && std::is_unsigned_v<T>>* = nullptr> BigInteger(T num) {
-        size = digits_for(num) + 1;
-        buff = new Digit[size];
-        for (unsigned i = 0; i < size - 1; i++) {
-            buff[i] = Digit(num >> (i * BITS_PER_DIGIT));
-        }
-        buff[size - 1] = 0;
-
-        trim();
-    }
-
-    BigInteger(std::pair<Digit, Digit> num) {
-        size = 3;
-        buff = new Digit[size]{ num.second, num.first, 0 };
-        trim();
-    }
+    template <typename T, typename std::enable_if_t<std::is_integral_v<T>>* = nullptr> BigInteger(T number) : digits(number) { }
 
     BigInteger(const char* str): BigInteger() {
         bool is_negative = false;
@@ -146,24 +271,13 @@ public:
             *this = -(*this);
         }
 
-        trim();
-    }
-
-    BigInteger(const BigInteger& lnum) {
-        size = lnum.size;
-        buff = new Digit[size];
-        memcpy(buff, lnum.buff, size * sizeof(Digit));
-        trim();
-    }
-
-    ~BigInteger() {
-        delete[] buff;
+        digits.trim();
     }
 
     BigInteger operator~() const {
         BigInteger res(*this);
-        for (unsigned i = 0; i < res.size; ++i)
-            res.buff[i] = ~res.buff[i];
+        for (unsigned i = 0; i < res.digits.get_size(); ++i)
+            res.digits[i] = ~res.digits[i];
         return res;
     }
 
@@ -177,15 +291,15 @@ public:
     }
 
     BigInteger operator+(const BigInteger& r) const {
-        int m = std::max(this->size, r.size);
-        int s = this->sign() != r.sign();
+        int m = std::max(digits.get_size(), r.digits.get_size());
+        int s = digits.sign() != r.digits.sign();
         BigInteger res;
-        res.set_size(m + 1 - s);
+        res.digits.set_size(m + 1 - s);
         unsigned __int8 carry = 0;
-        for (unsigned i = 0; i < res.size; ++i) {
-            auto result = add_with_carry(carry, (*this)[i], r[i]);
+        for (unsigned i = 0; i < res.digits.get_size(); ++i) {
+            auto result = add_with_carry(carry, digits[i], r.digits[i]);
             carry = result.first;
-            res.buff[i] = result.second;
+            res.digits[i] = result.second;
         }
         return res;
     }
@@ -206,20 +320,20 @@ public:
     }
 
     BigInteger& operator+=(Digit other) {
-        bool was_negative = sign();
-        auto result = add_with_carry(0, buff[0], other);
+        bool was_negative = digits.sign();
+        auto result = add_with_carry<Digit>(0, digits[0], other);
         uint8 carry = result.first;
-        buff[0] = result.second;
+        digits[0] = result.second;
 
-        for (unsigned i = 1; i < size && carry; ++i) {
-            buff[i] += 1;
-            carry = (buff[i] == 0);
+        for (unsigned i = 1; i < digits.get_size() && carry; ++i) {
+            ++digits[i];
+            carry = (digits[i] == Digit(0));
         }
 
-        bool is_negative = sign();
+        bool is_negative = digits.sign();
         if (is_negative && !was_negative) {
-            set_size(size + 1);
-            buff[size - 1] = 0;
+            digits.set_size(digits.get_size() + 1);
+            digits[digits.get_size() - 1] = 0;
         }
         return *this;
     }
@@ -263,23 +377,23 @@ public:
     BigInteger operator*(const BigInteger& lnum) const {
         // TODO: implement Karatsuba, maybe?
         BigInteger res;
-        BigInteger l = sign() ? -(*this) : (*this);
-        BigInteger r = lnum.sign() ? -lnum : lnum;
-        int s = sign() ^ lnum.sign();
-        for (unsigned i = 0; i < r.size; i++) {
-            res += (l * r[i]) << (i * BITS_PER_DIGIT);
+        BigInteger l = digits.sign() ? -(*this) : (*this);
+        BigInteger r = lnum.digits.sign() ? -lnum : lnum;
+        int s = digits.sign() ^ lnum.digits.sign();
+        for (unsigned i = 0; i < r.digits.get_size(); i++) {
+            res += (l * r.digits[i]) << (i * digits.BITS_PER_DIGIT);
         }
         return s ? -res : res;
     }
 
     BigInteger operator*(Digit r) const {
         BigInteger res;
-        bool s = sign();
+        bool s = digits.sign();
         BigInteger l_positive = s ? -(*this) : (*this);
-        res.set_size(l_positive.size + 1);
-        for (unsigned i = 0; i < l_positive.size; i++) {
-            BigInteger t = multiply_with_carry(l_positive[i], r);
-            res += t << (i * BITS_PER_DIGIT);
+        res.digits.set_size(l_positive.digits.get_size() + 1);
+        for (unsigned i = 0; i < l_positive.digits.get_size(); i++) {
+            BigInteger t = multiply_with_carry<Digit>(l_positive.digits[i], r);
+            res += t << (i * digits.BITS_PER_DIGIT);
         }
         return s ? -res : res;
     }
@@ -307,24 +421,24 @@ public:
     }
 
     BigInteger operator/(const BigInteger& lnum) const {
-        BigInteger l = sign() ? -(*this) : (*this);
-        BigInteger r = lnum.sign() ? -lnum : lnum;
-        int s = sign() ^ lnum.sign();
+        BigInteger l = digits.sign() ? -(*this) : (*this);
+        BigInteger r = lnum.digits.sign() ? -lnum : lnum;
+        int s = digits.sign() ^ lnum.digits.sign();
         BigInteger res = l.divmod(r).first;
 
         return s ? -res : res;
     }
 
     BigInteger operator/(Digit r) const {
-        int s = sign();
+        int s = digits.sign();
         BigInteger res;
         BigInteger l = s ? -(*this) : (*this);
 
-        res.set_size(l.size);
-        for (int i = l.size; i > 0; --i) {
-            auto result = udivmod(l[i], l[i - 1], r);
-            res.buff[i - 1] = result.first;
-            l.buff[i - 1] = result.second;
+        res.digits.set_size(l.digits.get_size());
+        for (int i = l.digits.get_size(); i > 0; --i) {
+            auto result = udivmod<Digit>(l.digits[i], l.digits[i - 1], r);
+            res.digits[i - 1] = result.first;
+            l.digits[i - 1] = result.second;
         }
         return s ? -res : res;
     }
@@ -352,9 +466,9 @@ public:
     }
 
     BigInteger operator%(const BigInteger& lnum) const {
-        BigInteger l = sign() ? -(*this) : (*this);
-        BigInteger r = lnum.sign() ? -lnum : lnum;
-        int s = sign() ^ lnum.sign();
+        BigInteger l = digits.sign() ? -(*this) : (*this);
+        BigInteger r = lnum.digits.sign() ? -lnum : lnum;
+        int s = digits.sign() ^ lnum.digits.sign();
         BigInteger res = l.divmod(r).second;
 
         return s ? -res : res;
@@ -388,16 +502,16 @@ public:
     }
 
     bool operator<(const BigInteger& other) const {
-        if (this->sign() != other.sign()) {
-            return this->sign();
+        if (digits.sign() != other.digits.sign()) {
+            return digits.sign();
         }
 
         // TODO: optimize -- do not iterate numbers of different sizes
-        for (int i = std::max(this->size, other.size) - 1; i >= 0; i--) {
-            if ((*this)[i] < other[i]) {
+        for (int i = std::max(digits.get_size(), other.digits.get_size()) - 1; i >= 0; i--) {
+            if (digits[i] < other.digits[i]) {
                 return true;
             }
-            if ((*this)[i] > other[i]) {
+            if (digits[i] > other.digits[i]) {
                 return false;
             }
         }
@@ -418,8 +532,8 @@ public:
 
     bool operator==(const BigInteger& other) const {
         // TODO: optimize -- do not iterate numbers of different sizes
-        for (unsigned i = 0; i < std::max(this->size, other.size); i++) {
-            if ((*this)[i] != other[i]) {
+        for (unsigned i = 0; i < std::max(digits.get_size(), other.digits.get_size()); i++) {
+            if (digits[i] != other.digits[i]) {
                 return false;
             }
         }
@@ -432,12 +546,7 @@ public:
     }
 
     const BigInteger& operator=(const BigInteger& number) {
-        if (this != &number) {
-            size = number.size;
-            delete[] buff;
-            buff = new Digit[size];
-            memcpy(buff, number.buff, size * sizeof(Digit));
-        }
+        digits = number.digits;
         return *this;
     }
 
@@ -453,7 +562,7 @@ public:
         }
 
         std::string result;
-        bool is_negative = sign();
+        bool is_negative = digits.sign();
         BigInteger temporary = is_negative ? -*this : *this;
 
         for (int i = 0; temporary; ++i) {
@@ -471,21 +580,21 @@ public:
 
     explicit operator long double() const {
         long double result = 0.0;
-        long double multiplier = pow(2.0, BITS_PER_DIGIT);
-        for (int i = size - 1; i >= 0; i--) {
+        long double multiplier = pow(2.0, digits.BITS_PER_DIGIT);
+        for (int i = digits.get_size() - 1; i >= 0; i--) {
             result *= multiplier;
-            result += buff[i];
+            result += digits[i];
         }
         return result;
     }
 
     explicit operator Digit() const {
-        return buff[0];
+        return digits[0];
     }
 
     explicit operator bool() const {
-        for (unsigned i = 0; i < this->size; i++) {
-            if ((*this)[i] != 0) {
+        for (unsigned i = 0; i < digits.get_size(); i++) {
+            if (digits[i] != 0) {
                 return true;
             }
         }
@@ -510,19 +619,19 @@ public:
     }
 
     BigInteger& operator--() {
-        for (unsigned i = 0; i < size - 1; ++i) {
-            buff[i] -= 1;
+        for (unsigned i = 0; i < digits.get_size() - 1; ++i) {
+            --digits[i];
 
-            if (buff[i] != Digit(~0ll)) {
+            if (digits[i] != Digit(~0ll)) {
                 return *this;
             }
         }
 
-        int leading_hword_index = size - 1;
-        if (buff[leading_hword_index] == (Digit(1) << (BigInteger::BITS_PER_DIGIT - 1))) {
-            set_size(size + 1);
+        int leading_hword_index = digits.get_size() - 1;
+        if (digits[leading_hword_index] == (Digit(1) << (digits.BITS_PER_DIGIT - 1))) {
+            digits.set_size(digits.get_size() + 1);
         }
-        buff[leading_hword_index] -= 1;
+        --digits[leading_hword_index];
 
         return *this;
     }
@@ -530,27 +639,27 @@ public:
     // TODO: implement & | ^ &= |= ^=
 
     BigInteger operator<<(unsigned shift) const {
-        unsigned hword_shift = shift / BITS_PER_DIGIT;
-        unsigned bit_shift = shift % BITS_PER_DIGIT;
+        unsigned hword_shift = shift / digits.BITS_PER_DIGIT;
+        unsigned bit_shift = shift % digits.BITS_PER_DIGIT;
 
         BigInteger res;
-        res.set_size(size + hword_shift + 1);
-        res.buff[hword_shift] = shift_left((*this)[0], Digit(0), bit_shift);
-        for (unsigned i = 0; i < size; ++i) {
-            res.buff[hword_shift + i + 1] = shift_left((*this)[i + 1], (*this)[i], bit_shift);
+        res.digits.set_size(digits.get_size() + hword_shift + 1);
+        res.digits[hword_shift] = shift_left(digits[0], Digit(0), bit_shift);
+        for (unsigned i = 0; i < digits.get_size(); ++i) {
+            res.digits[hword_shift + i + 1] = shift_left(digits[i + 1], digits[i], bit_shift);
         }
         return res;
     }
 
     BigInteger operator>>(unsigned shift) const {
-        unsigned hword_shift = shift / BITS_PER_DIGIT;
-        unsigned bit_shift = shift % BITS_PER_DIGIT;
+        unsigned hword_shift = shift / digits.BITS_PER_DIGIT;
+        unsigned bit_shift = shift % digits.BITS_PER_DIGIT;
 
-        if (hword_shift >= size) return sign() ? -1 : 0;
+        if (hword_shift >= digits.get_size()) return digits.sign() ? -1 : 0;
         BigInteger res;
-        res.set_size(size - hword_shift);
-        for (unsigned i = 0; i < res.size; ++i) {
-            res.buff[res.size - i - 1] = shift_right((*this)[size - i], (*this)[size - i - 1], bit_shift);
+        res.digits.set_size(digits.get_size() - hword_shift);
+        for (unsigned i = 0; i < res.digits.get_size(); ++i) {
+            res.digits[res.digits.get_size() - i - 1] = shift_right(digits[digits.get_size() - i], digits[digits.get_size() - i - 1], bit_shift);
         }
         return res;
     }
@@ -574,7 +683,7 @@ public:
         // TODO: Can this be optimized by implementing division via multiplication https://research.swtch.com/divmult?
         if (!other) {
             // This will blow up with a CPU error
-            return std::pair<BigInteger, BigInteger>(1 / other[0], 1 % other[0]);
+            return std::pair<BigInteger, BigInteger>(1 / Digit(other), 1 % Digit(other));
         }
 
         BigInteger scaled_divisor = other;
@@ -600,64 +709,24 @@ public:
     }
 
     void printbin() const {
-        for (int i = size - 1; i >= 0; --i) {
-            for (int bit_index = BITS_PER_DIGIT - 1; bit_index >= 0; bit_index--) {
+        for (int i = digits.get_size() - 1; i >= 0; --i) {
+            for (int bit_index = digits.BITS_PER_DIGIT - 1; bit_index >= 0; bit_index--) {
                 Digit mask = Digit(1) << bit_index;
-                std::cout << ((buff[i] & mask) ? 1 : 0);
+                std::cout << ((digits[i] & mask) ? 1 : 0);
             }
         }
     }
 
     void printhex() const {
-        for (int i = size - 1; i >= 0; --i) {
-            std::cout << std::hex << buff[i];
+        for (int i = digits.get_size() - 1; i >= 0; --i) {
+            std::cout << std::hex << digits[i];
         }
     }
 
     static const Digit IO_BASE = 10;
-    static const size_t BITS_PER_DIGIT = sizeof(Digit) * 8;
+
 private:
-
-    Digit operator[](unsigned position) const {
-        if (position >= size) return sign() ? ~0 : 0;
-        return this->buff[position];
-    }
-
-    void set_size(unsigned new_size) {
-        Digit* new_buff = new Digit[new_size];
-        memcpy(new_buff, buff, std::min(size, new_size) * sizeof(Digit));
-        for (unsigned i = size; i < new_size; ++i) new_buff[i] = sign() ? ~0 : 0;
-        delete[] buff;
-
-        buff = new_buff;
-        size = new_size;
-    }
-
-    void trim() {
-        Digit s = sign() ? ~0 : 0;
-        unsigned i;
-        for (i = 0; i < size - 1 && buff[size - i - 1] == s; ++i) {
-            if ((s != 0 && oldest_bit(size - i - 2) == 0) || (s == 0 && oldest_bit(size - i - 2) != 0)) {
-                break;
-            }
-        }
-        set_size(size - i);
-    }
-
-    bool sign() const {
-        return oldest_bit(size - 1);
-    }
-
-    bool oldest_bit(unsigned digit_index) const {
-        return !!(buff[digit_index] & (Digit(1) << (BITS_PER_DIGIT - 1)));
-    }
-
-    template <typename T> constexpr static unsigned digits_for(T number) {
-        return std::max<unsigned>(1, sizeof(number) / sizeof(Digit));
-    }
-
-    Digit* buff;
-    unsigned size;
+    DigitBuffer<Digit> digits;
 };
 
 template <typename T> BigInteger operator+(T l, const BigInteger& r) {
