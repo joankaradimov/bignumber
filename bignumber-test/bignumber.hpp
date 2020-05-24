@@ -13,29 +13,29 @@ private:
         operator Digit() const {
             if (index >= digits_buffer.size)
                 return digits_buffer.sign() ? ~0 : 0;
-            return digits_buffer.buffer[index];
+            return digits_buffer.at(index);
         }
 
         Digit operator=(Digit digit) {
-            return digits_buffer.buffer[index] = digit;
+            return digits_buffer.at(index) = digit;
         }
 
         DigitProxy& operator++() {
-            ++digits_buffer.buffer[index];
+            ++digits_buffer.at(index);
             return *this;
         }
 
         DigitProxy& operator--() {
-            --digits_buffer.buffer[index];
+            --digits_buffer.at(index);
             return *this;
         }
 
         bool operator==(Digit other) const {
-            return digits_buffer.buffer[index] == other;
+            return digits_buffer.at(index) == other;
         }
 
         bool operator!=(Digit other) const {
-            return digits_buffer.buffer[index] != other;
+            return digits_buffer.at(index) != other;
         }
 
         DigitBuffer& digits_buffer;
@@ -45,18 +45,22 @@ private:
 public:
     DigitBuffer(std::initializer_list<Digit> l) {
         size = l.size();
-        buffer = new Digit[l.size()];
+        if (size > IMMEDIATE_BUFFER_SIZE) {
+            buffer = new Digit[l.size()];
+        }
         int i = 0;
         for (Digit digit : l) {
-            buffer[i++] = digit;
+            at(i++) = digit;
         }
     }
 
     template <typename T, typename std::enable_if_t<std::is_integral_v<T>&& std::is_signed_v<T>>* = nullptr> DigitBuffer(T number) {
         size = digits_for(number);
-        buffer = new Digit[size];
+        if (size > IMMEDIATE_BUFFER_SIZE) {
+            buffer = new Digit[size];
+        }
         for (unsigned i = 0; i < size; i++) {
-            buffer[i] = Digit(number >> (i * BITS_PER_DIGIT));
+            at(i) = Digit(number >> (i * BITS_PER_DIGIT));
         }
 
         trim();
@@ -64,43 +68,54 @@ public:
 
     template <typename T, typename std::enable_if_t<std::is_integral_v<T>&& std::is_unsigned_v<T>>* = nullptr> DigitBuffer(T number) {
         size = digits_for(number) + 1;
-        buffer = new Digit[size];
-        for (unsigned i = 0; i < size - 1; i++) {
-            buffer[i] = Digit(number >> (i * BITS_PER_DIGIT));
+        if (size > IMMEDIATE_BUFFER_SIZE) {
+            buffer = new Digit[size];
         }
-        buffer[size - 1] = 0;
+        for (unsigned i = 0; i < size - 1; i++) {
+            at(i) = Digit(number >> (i * BITS_PER_DIGIT));
+        }
+        at(size - 1) = 0;
 
         trim();
     }
 
     DigitBuffer(const DigitBuffer& other) {
         size = other.size;
-        buffer = new Digit[size];
-        memcpy(buffer, other.buffer, size * sizeof(Digit));
+        if (size > IMMEDIATE_BUFFER_SIZE) {
+            buffer = new Digit[size];
+        }
+        for (unsigned i = 0; i < size; i++) {
+            at(i) = other[i];
+        }
         trim();
     }
 
     ~DigitBuffer() {
-        delete[] buffer;
+        if (size > IMMEDIATE_BUFFER_SIZE) {
+            delete[] buffer;
+        }
     }
 
     DigitBuffer& operator=(const DigitBuffer& other) {
         if (this != &other) {
             DigitBuffer temporary = other;
-            std::swap(buffer, temporary.buffer);
-            std::swap(size, temporary.size);
+            swap(temporary);
         }
         return *this;
     }
 
     void set_size(unsigned new_size) {
-        Digit* new_buffer = new Digit[new_size];
-        memcpy(new_buffer, buffer, std::min(size, new_size) * sizeof(Digit));
-        for (unsigned i = size; i < new_size; ++i) new_buffer[i] = sign() ? ~0 : 0;
-        delete[] buffer;
+        DigitBuffer old_digits = {};
+        swap(old_digits);
 
-        buffer = new_buffer;
         size = new_size;
+        if (size > IMMEDIATE_BUFFER_SIZE) {
+            buffer = new Digit[size];
+        }
+
+        for (unsigned i = 0; i < size; i++) {
+            at(i) = old_digits[i];
+        }
     }
 
     unsigned get_size() const {
@@ -112,9 +127,15 @@ public:
     }
 
     Digit operator[](unsigned index) const {
-        if (index >= size)
+        if (index >= size) {
             return sign() ? ~0 : 0;
-        return buffer[index];
+        }
+        else if (size <= IMMEDIATE_BUFFER_SIZE) {
+            return immediate_buffer[index];
+        }
+        else {
+            return buffer[index];
+        }
     }
 
     void trim() {
@@ -132,23 +153,32 @@ public:
         return oldest_bit(size - 1);
     }
 
-    static const size_t BITS_PER_DIGIT = sizeof(Digit) * 8;
+    const static constexpr size_t BITS_PER_DIGIT = sizeof(Digit) * 8;
 
 private:
 
+    void swap(DigitBuffer& other) {
+        std::swap(buffer, other.buffer);
+        std::swap(size, other.size);
+    }
+
+    Digit& at(unsigned index) {
+        return size <= IMMEDIATE_BUFFER_SIZE ? immediate_buffer[index] : buffer[index];
+    }
+
     bool oldest_bit(unsigned digit_index) const {
-        return !!(buffer[digit_index] & (Digit(1) << (BITS_PER_DIGIT - 1)));
+        return !!((*this)[digit_index] & (Digit(1) << (BITS_PER_DIGIT - 1)));
     }
 
     template <typename T> constexpr static unsigned digits_for(T number) {
         return std::max<unsigned>(1, sizeof(number) / sizeof(Digit));
     }
 
-    const constexpr static unsigned immediate_buffer_size = sizeof(Digit*) / sizeof(Digit);
+    const static constexpr unsigned IMMEDIATE_BUFFER_SIZE = sizeof(Digit*) / sizeof(Digit);
 
     union {
         Digit* buffer;
-        Digit immediate_buffer[immediate_buffer_size];
+        Digit immediate_buffer[IMMEDIATE_BUFFER_SIZE];
     };
     unsigned size;
 };
