@@ -17,6 +17,9 @@ private:
         }
 
         Digit operator=(Digit digit) {
+            if (digits_buffer.size <= index) {
+                digits_buffer.set_size(index + 1);
+            }
             return digits_buffer.at(index) = digit;
         }
 
@@ -361,8 +364,7 @@ public:
 
         bool is_negative = digits.sign();
         if (is_negative && !was_negative) {
-            digits.set_size(digits.get_size() + 1);
-            digits[digits.get_size() - 1] = 0;
+            digits[digits.get_size()] = 0;
         }
         return *this;
     }
@@ -409,8 +411,8 @@ public:
         BigInteger l = abs();
         BigInteger r = lnum.abs();
         int s = digits.sign() ^ lnum.digits.sign();
-        for (unsigned i = 0; i < r.digits.get_size(); i++) {
-            res += (l * r.digits[i]) << (i * digits.BITS_PER_DIGIT);
+        for (unsigned i = r.digits.get_size(); i > 0; --i) {
+            res += (l * r.digits[i - 1]) << ((i - 1) * digits.BITS_PER_DIGIT);
         }
         return s ? -res : res;
     }
@@ -699,11 +701,10 @@ public:
         unsigned bit_shift = shift % digits.BITS_PER_DIGIT;
 
         BigInteger res;
-        res.digits.set_size(digits.get_size() + hword_shift + 1);
-        res.digits[hword_shift] = shift_left(digits[0], Digit(0), bit_shift);
-        for (unsigned i = 0; i < digits.get_size(); ++i) {
-            res.digits[hword_shift + i + 1] = shift_left(digits[i + 1], digits[i], bit_shift);
+        for (unsigned i = digits.get_size(); i > 0; --i) {
+            res.digits[hword_shift + i] = shift_left(digits[i], digits[i - 1], bit_shift);
         }
+        res.digits[hword_shift] = shift_left(digits[0], Digit(0), bit_shift);
         return res;
     }
 
@@ -713,9 +714,8 @@ public:
 
         if (hword_shift >= digits.get_size()) return digits.sign() ? -1 : 0;
         BigInteger res;
-        res.digits.set_size(digits.get_size() - hword_shift);
-        for (unsigned i = 0; i < res.digits.get_size(); ++i) {
-            res.digits[res.digits.get_size() - i - 1] = shift_right(digits[digits.get_size() - i], digits[digits.get_size() - i - 1], bit_shift);
+        for (unsigned i = digits.get_size() - hword_shift; i > 0; --i) {
+            res.digits[i - 1] = shift_right(digits[hword_shift + i], digits[hword_shift + i - 1], bit_shift);
         }
         return res;
     }
@@ -765,7 +765,6 @@ public:
         BigInteger result;
         BigInteger remain = *this;
 
-        result.digits.set_size(remain.digits.get_size());
         for (int i = remain.digits.get_size(); i > 0; --i) {
             auto divmod_resuilt = udivmod<Digit>(remain.digits[i], remain.digits[i - 1], r);
             result.digits[i - 1] = divmod_resuilt.first;
