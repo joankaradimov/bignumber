@@ -216,15 +216,10 @@ private:
     unsigned size;
 };
 
-typedef unsigned __int8 uint8;
-typedef unsigned __int16 uint16;
-typedef unsigned __int32 uint32;
-typedef unsigned __int64 uint64;
-
 template <typename T> struct doubled_size {};
-template <> struct doubled_size<uint8> { typedef uint16 type; };
-template <> struct doubled_size<uint16> { typedef uint32 type; };
-template <> struct doubled_size<uint32> { typedef uint64 type; };
+template <> struct doubled_size<uint8_t> { typedef uint16_t type; };
+template <> struct doubled_size<uint16_t> { typedef uint32_t type; };
+template <> struct doubled_size<uint32_t> { typedef uint64_t type; };
 
 template <typename T> std::pair<T, T> multiply_with_carry(T a, T b) {
     typename doubled_size<T>::type result = a;
@@ -232,35 +227,35 @@ template <typename T> std::pair<T, T> multiply_with_carry(T a, T b) {
     return std::pair<T, T>(result >> (sizeof(T) * 8), result);
 }
 
-template <> inline std::pair<uint64, uint64> multiply_with_carry(uint64 a, uint64 b) {
-    uint64 result_high;
-    uint64 result_low = _umul128(a, b, &result_high);
-    return std::pair<uint64, uint64>(result_high, result_low);
+template <> inline std::pair<uint64_t, uint64_t> multiply_with_carry(uint64_t a, uint64_t b) {
+    uint64_t result_high;
+    uint64_t result_low = _umul128(a, b, &result_high);
+    return std::pair<uint64_t, uint64_t>(result_high, result_low);
 }
 
-template <typename T> std::pair<uint8, T> add_with_carry(uint8 carry, T a, T b) {
+template <typename T> std::pair<uint8_t, T> add_with_carry(uint8_t carry, T a, T b) {
     typename doubled_size<T>::type result = carry;
     result += a;
     result += b;
-    return std::pair<uint8, T>(result >> (sizeof(T) * 8), result);
+    return std::pair<uint8_t, T>(result >> (sizeof(T) * 8), result);
 }
 
-template <> inline std::pair<uint8, uint64> add_with_carry(uint8 carry, uint64 a, uint64 b) {
-    uint64 result_low;
+template <> inline std::pair<uint8_t, uint64_t> add_with_carry(uint8_t carry, uint64_t a, uint64_t b) {
+    uint64_t result_low;
     carry = _addcarryx_u64(carry, a, b, &result_low);
-    return std::pair<uint8, uint64>(carry, result_low);
+    return std::pair<uint8_t, uint64_t>(carry, result_low);
 }
 
-template <> inline std::pair<uint8, uint32> add_with_carry(uint8 carry, uint32 a, uint32 b) {
-    uint32 result_low;
+template <> inline std::pair<uint8_t, uint32_t> add_with_carry(uint8_t carry, uint32_t a, uint32_t b) {
+    uint32_t result_low;
     carry = _addcarryx_u32(carry, a, b, &result_low);
-    return std::pair<uint8, uint32>(carry, result_low);
+    return std::pair<uint8_t, uint32_t>(carry, result_low);
 }
 
-template <> inline std::pair<uint8, uint16> add_with_carry(uint8 carry, uint16 a, uint16 b) {
-    uint16 result_low;
+template <> inline std::pair<uint8_t, uint16_t> add_with_carry(uint8_t carry, uint16_t a, uint16_t b) {
+    uint16_t result_low;
     carry = _addcarry_u16(carry, a, b, &result_low);
-    return std::pair<uint8, uint16>(carry, result_low);
+    return std::pair<uint8_t, uint16_t>(carry, result_low);
 }
 
 template <typename T> std::pair<T, T> udivmod(T high_dividend, T low_dividend, T divisor) {
@@ -268,32 +263,32 @@ template <typename T> std::pair<T, T> udivmod(T high_dividend, T low_dividend, T
     return std::pair<T, T>(dividend / divisor, dividend % divisor);
 }
 
-template <> inline std::pair<uint64, uint64> udivmod(uint64 high_dividend, uint64 low_dividend, uint64 divisor) {
-    uint64 remainder;
-    uint64 result = _udiv128(high_dividend, low_dividend, divisor, &remainder);
-    return std::pair<uint64, uint64>(result, remainder);
+template <> inline std::pair<uint64_t, uint64_t> udivmod(uint64_t high_dividend, uint64_t low_dividend, uint64_t divisor) {
+    uint64_t remainder;
+    uint64_t result = _udiv128(high_dividend, low_dividend, divisor, &remainder);
+    return std::pair<uint64_t, uint64_t>(result, remainder);
 }
 
-template <> inline std::pair<uint32, uint32> udivmod(uint32 high_dividend, uint32 low_dividend, uint32 divisor) {
-    uint32 remainder;
-    uint64 dividend = (uint64(high_dividend) << 32) | low_dividend;
-    uint32 result = _udiv64(dividend, divisor, &remainder);
-    return std::pair<uint32, uint32>(result, remainder);
+template <> inline std::pair<uint32_t, uint32_t> udivmod(uint32_t high_dividend, uint32_t low_dividend, uint32_t divisor) {
+    uint32_t remainder;
+    uint64_t dividend = (uint64_t(high_dividend) << 32) | low_dividend;
+    uint32_t result = _udiv64(dividend, divisor, &remainder);
+    return std::pair<uint32_t, uint32_t>(result, remainder);
 }
 
-template <typename T> T shift_left(T high, T low, uint8 shift) {
+template <typename T> T shift_left(T high, T low, uint8_t shift) {
     return (doubled_size<T>::type(low) >> (sizeof(T) * 8 - shift)) | (doubled_size<T>::type(high) << shift);
 }
 
-template <> inline uint64 shift_left(uint64 high, uint64 low, uint8 shift) {
+template <> inline uint64_t shift_left(uint64_t high, uint64_t low, uint8_t shift) {
     return __shiftleft128(low, high, shift);
 }
 
-template <typename T> T shift_right(T high, T low, uint8 shift) {
+template <typename T> T shift_right(T high, T low, uint8_t shift) {
     return (doubled_size<T>::type(low) >> shift) | (doubled_size<T>::type(high) << (sizeof(T) * 8 - shift));
 }
 
-template <> inline uint64 shift_right(uint64 high, uint64 low, uint8 shift) {
+template <> inline uint64_t shift_right(uint64_t high, uint64_t low, uint8_t shift) {
     return __shiftright128(low, high, shift);
 }
 
@@ -384,7 +379,7 @@ public:
     BigInteger& operator+=(Digit other) {
         bool was_negative = digits.sign();
         auto result = add_with_carry<Digit>(0, digits[0], other);
-        uint8 carry = result.first;
+        uint8_t carry = result.first;
         digits[0] = result.second;
 
         for (unsigned i = 1; i < digits.get_size() && carry; ++i) {
