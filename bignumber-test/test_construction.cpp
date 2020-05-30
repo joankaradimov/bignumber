@@ -55,3 +55,10 @@ TEST(TestConstruction, ConstructsFromIntegerBounds) {
     EXPECT_EQ(BigInteger(std::numeric_limits<signed __int64>::max()), "9223372036854775807");
     EXPECT_EQ(BigInteger(std::numeric_limits<signed __int64>::min()), "-9223372036854775808");
 }
+
+TEST(TestConstruction, ConstructsLeadingTwosComplementDigits) {
+    EXPECT_EQ(BigInteger(signed __int64(-1)), -1);
+    EXPECT_EQ(BigInteger(signed __int64(std::numeric_limits<signed __int32>::min())), "-2147483648");
+    EXPECT_EQ(BigInteger(signed __int64(0xffffffff)), "4294967295");
+    EXPECT_EQ(BigInteger(signed __int64(0xffffffff00000000)), "-4294967296");
+}
