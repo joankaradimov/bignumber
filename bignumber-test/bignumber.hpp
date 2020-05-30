@@ -57,10 +57,13 @@ public:
         }
     }
 
-    template <typename T, typename std::enable_if_t<std::is_integral_v<T>&& std::is_signed_v<T>>* = nullptr> DigitBuffer(T number) {
+    template <typename T, typename std::enable_if_t<std::is_integral_v<T>>* = nullptr> DigitBuffer(T number) {
         Digit digits[max_digit_count<T>];
         for (unsigned i = 0; i < max_digit_count<T>; i++) {
             digits[i] = Digit(number >> (i * BITS_PER_DIGIT));
+        }
+        if (std::is_unsigned_v<T>) {
+            digits[max_digit_count<T> - 1] = 0;
         }
 
         unsigned meaningful_digits;
@@ -72,35 +75,6 @@ public:
 
             bool lower_is_negative = digits[meaningful_digits - 2] & (Digit(1) << (BITS_PER_DIGIT - 1));
             if (higher == Digit(0) && lower_is_negative || higher == Digit(~0) && !lower_is_negative) {
-                break;
-            }
-        }
-
-        size = meaningful_digits;
-        if (size > IMMEDIATE_BUFFER_SIZE) {
-            buffer = new Digit[size];
-        }
-        for (unsigned i = 0; i < size; i++) {
-            at(i) = digits[i];
-        }
-    }
-
-    template <typename T, typename std::enable_if_t<std::is_integral_v<T>&& std::is_unsigned_v<T>>* = nullptr> DigitBuffer(T number) {
-        Digit digits[max_digit_count<T> + 1];
-        for (unsigned i = 0; i < max_digit_count<T>; i++) {
-            digits[i] = Digit(number >> (i * BITS_PER_DIGIT));
-        }
-        digits[max_digit_count<T>] = 0;
-
-        unsigned meaningful_digits;
-        for (meaningful_digits = max_digit_count<T> + 1; meaningful_digits > 1; meaningful_digits--) {
-            Digit higher = digits[meaningful_digits - 1];
-            if (higher != Digit(0)) {
-                break;
-            }
-
-            bool lower_is_negative = digits[meaningful_digits - 2] & (Digit(1) << (BITS_PER_DIGIT - 1));
-            if (higher == Digit(0) && lower_is_negative) {
                 break;
             }
         }
@@ -205,7 +179,7 @@ private:
         return !!((*this)[digit_index] & (Digit(1) << (BITS_PER_DIGIT - 1)));
     }
 
-    template <typename T> constexpr const static unsigned max_digit_count = std::max<unsigned>(1, sizeof(T) / sizeof(Digit));
+    template <typename T> constexpr const static unsigned max_digit_count = std::max<unsigned>(1, sizeof(T) / sizeof(Digit)) + (std::is_unsigned_v<T> ? 1 : 0);
 
     const static constexpr unsigned IMMEDIATE_BUFFER_SIZE = sizeof(Digit*) / sizeof(Digit);
 
