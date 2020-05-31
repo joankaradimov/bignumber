@@ -281,6 +281,7 @@ public:
 
     BigInteger(const char* str): BigInteger() {
         bool is_negative = false;
+        int base = 10;
 
         if (*str == '+') {
             ++str;
@@ -290,9 +291,24 @@ public:
             ++str;
         }
 
+        if (str[0] == '0') {
+            if (str[1] == 'x') {
+                base = 16;
+                str += 2;
+            }
+            else if (str[1] == 'b') {
+                base = 2;
+                str += 2;
+            }
+            else {
+                base = 8;
+                str += 1;
+            }
+        }
+
         for (int i = 0; str[i]; ++i) {
             // TODO: read multiple decimal digits at once
-            (*this) *= IO_BASE;
+            (*this) *= base;
             (*this) += char_to_digit(str[i]);
         }
 
@@ -793,6 +809,12 @@ private:
     static Digit char_to_digit(char c) {
         if ('0' <= c && c <= '9') {
             return (Digit) c - '0';
+        }
+        if ('a' <= c && c <= 'z') {
+            return (Digit) c - 'a' + 0xA;
+        }
+        if ('A' <= c && c <= 'Z') {
+            return (Digit) c - 'A' + 0xA;
         }
         throw std::invalid_argument((std::string) "Cannot conver character '" + c + "' to digit");
     }

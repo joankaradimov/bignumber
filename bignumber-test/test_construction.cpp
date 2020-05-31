@@ -15,7 +15,7 @@ TEST(TestConstruction, ConstructsFromIntegers) {
     EXPECT_EQ(one, 1);
 }
 
-TEST(TestConstruction, ConstructsFromStrings) {
+TEST(TestConstruction, ConstructsFromDecimalStrings) {
     BigInteger zero = "0";
     EXPECT_EQ(zero, 0);
 
@@ -30,6 +30,37 @@ TEST(TestConstruction, ConstructsFromStrings) {
 
     BigInteger bigger_than_int_64 = "1000000000000000000000";
     EXPECT_EQ(bigger_than_int_64, "1000000000000000000000");
+}
+
+TEST(TestConstruction, ConstructsFromBinaryStrings) {
+    EXPECT_EQ(BigInteger("0b0"), 0);
+    EXPECT_EQ(BigInteger("0b1"), 1);
+    EXPECT_EQ(BigInteger("0b1000"), 8);
+    EXPECT_EQ(BigInteger("-0b1000"), -8);
+    EXPECT_EQ(BigInteger("0b1000000000000000000000000000000000000000000000000000000000000"), "1152921504606846976");
+}
+
+TEST(TestConstruction, ConstructsFromHexadecimalStrings) {
+    EXPECT_EQ(BigInteger("0x0"), 0);
+    EXPECT_EQ(BigInteger("0x1"), 1);
+    EXPECT_EQ(BigInteger("0xa"), 10);
+    EXPECT_EQ(BigInteger("0xA"), 10);
+    EXPECT_EQ(BigInteger("0xF"), 15);
+    EXPECT_EQ(BigInteger("0xFF"), 255);
+    EXPECT_EQ(BigInteger("-0xFF"), -255);
+    EXPECT_EQ(BigInteger("0x1000"), 4096);
+    EXPECT_EQ(BigInteger("0xdefec8"), 14614216);
+    EXPECT_EQ(BigInteger("0xCafeBabe"), 3405691582);
+    EXPECT_EQ(BigInteger("0xDEADBEEF"), 3735928559);
+    EXPECT_EQ(BigInteger("0xDEADBEEF"), 3735928559);
+    EXPECT_EQ(BigInteger("0x1000000000000000000000000000000000000000000"), "374144419156711147060143317175368453031918731001856");
+}
+
+TEST(TestConstruction, ConstructsFromOctalStrings) {
+    EXPECT_EQ(BigInteger("00"), 0);
+    EXPECT_EQ(BigInteger("01"), 1);
+    EXPECT_EQ(BigInteger("07"), 7);
+    EXPECT_EQ(BigInteger("010"), 8);
 }
 
 TEST(TestConstruction, ConstructsFromOtherBigIntegers) {
