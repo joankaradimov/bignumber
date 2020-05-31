@@ -301,8 +301,6 @@ public:
         if (is_negative) {
             *this = -(*this);
         }
-
-        digits.trim();
     }
 
     BigInteger operator~() const {
