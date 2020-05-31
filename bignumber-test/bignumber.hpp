@@ -292,10 +292,8 @@ public:
 
         for (int i = 0; str[i]; ++i) {
             // TODO: read multiple decimal digits at once
-            if (str[i] < '0' || str[i] > '9') break;
-            Digit digit = Digit(str[i] - '0');
             (*this) *= IO_BASE;
-            (*this) += digit;
+            (*this) += char_to_digit(str[i]);
         }
 
         if (is_negative) {
@@ -792,6 +790,13 @@ public:
     static const Digit IO_BASE = 10;
 
 private:
+    static Digit char_to_digit(char c) {
+        if ('0' <= c && c <= '9') {
+            return (Digit) c - '0';
+        }
+        throw std::invalid_argument((std::string) "Cannot conver character '" + c + "' to digit");
+    }
+
     DigitBuffer<Digit> digits;
 };
 
