@@ -323,9 +323,9 @@ public:
 
     BigInteger operator+(const BigInteger& r) const {
         int m = std::max(digits.get_size(), r.digits.get_size());
-        int s = digits.sign() != r.digits.sign();
+        int carry_size = digits.sign() == r.digits.sign();
         BigInteger res;
-        res.digits.set_size(m + 1 - s);
+        res.digits.set_size(m + carry_size);
         unsigned __int8 carry = 0;
         for (unsigned i = 0; i < res.digits.get_size(); ++i) {
             auto result = add_with_carry(carry, digits[i], r.digits[i]);
