@@ -676,7 +676,7 @@ public:
 
     BigInteger& operator&=(const BigInteger& other) {
         digits.set_size(std::min(digits.get_size(), other.digits.get_size()));
-        for (int i = 0; i < digits.get_size(); i++) {
+        for (unsigned i = 0; i < digits.get_size(); i++) {
             digits[i] = digits[i] & other.digits[i];
         }
         return *this;
