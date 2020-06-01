@@ -17,6 +17,14 @@ TEST(TestSubtraction, SubtractsBigIntegersAndPrimitiveIntegers) {
     EXPECT_EQ(4 - two, 2);
 }
 
+TEST(TestSubtraction, SubtractsBigIntegersAndDigits) {
+    EXPECT_EQ(BigInteger(2) - Digit(0), 2);
+    EXPECT_EQ(BigInteger(2) - Digit(1), 1);
+    EXPECT_EQ(BigInteger(2) - Digit(2), 0);
+    EXPECT_EQ(BigInteger(0) - Digit(1), -1);
+    EXPECT_EQ(BigInteger("100000000000000000000000000000000000") - Digit(1), "99999999999999999999999999999999999");
+}
+
 TEST(TestSubtraction, SubtractsBigIntegersAndStrings) {
     const BigInteger two = 2;
     EXPECT_EQ(two - "1", "1");

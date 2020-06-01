@@ -390,8 +390,10 @@ public:
         return (*this) + (-r);
     }
 
-    BigInteger operator-(Digit r) const {
-        return *this - BigInteger(r); // TODO: optimize
+    BigInteger operator-(Digit other) const {
+        BigInteger result = *this;
+        result -= other;
+        return result;
     }
 
     template <typename T, typename std::enable_if_t<std::is_integral_v<T>>* = nullptr> BigInteger operator-(T other) const {
@@ -404,9 +406,21 @@ public:
         return *this;
     }
 
-    BigInteger& operator-=(Digit r) {
-        // TODO: optimize -- do not create extra instances
-        *this = (*this) - r;
+    BigInteger& operator-=(Digit other) {
+        bool was_negative = digits.sign();
+        auto result = add_with_carry<Digit>(0, digits[0], -other);
+        uint8_t carry = !result.first;
+        digits[0] = result.second;
+
+        for (unsigned i = 1; i < digits.get_size() && carry; ++i) {
+            --digits[i];
+            carry = (digits[i] == Digit(~0));
+        }
+
+        bool is_negative = digits.sign();
+        if (!is_negative && was_negative) {
+            digits[digits.get_size()] = Digit(~0);
+        }
         return *this;
     }
 
