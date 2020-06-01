@@ -664,26 +664,12 @@ public:
 
     BigInteger operator--(int) {
         BigInteger old = *this;
-        --(*this);
+        (*this) -= Digit(1);
         return old;
     }
 
     BigInteger& operator--() {
-        for (unsigned i = 0; i < digits.get_size() - 1; ++i) {
-            --digits[i];
-
-            if (digits[i] != Digit(~0ll)) {
-                return *this;
-            }
-        }
-
-        int leading_hword_index = digits.get_size() - 1;
-        if (digits[leading_hword_index] == (Digit(1) << (digits.BITS_PER_DIGIT - 1))) {
-            digits.set_size(digits.get_size() + 1);
-        }
-        --digits[leading_hword_index];
-
-        return *this;
+        return *this -= Digit(1);
     }
 
     // TODO: implement | ^ |= ^=
