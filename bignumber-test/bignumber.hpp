@@ -640,12 +640,12 @@ public:
 
     BigInteger operator++(int) {
         BigInteger old = *this;
-        (*this) += 1;
+        (*this) += Digit(1);
         return old;
     }
 
     BigInteger& operator++() {
-        return *this += 1;
+        return *this += Digit(1);
     }
 
     BigInteger operator--(int) {
