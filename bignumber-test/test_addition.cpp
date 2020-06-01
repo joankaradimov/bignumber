@@ -16,6 +16,20 @@ TEST(TestAddition, AddsBigIntegersAndPrimitiveIntegers) {
     EXPECT_EQ(8 + two, 10);
 }
 
+TEST(TestAddition, AddsBigIntegersAndDigits) {
+    EXPECT_EQ(BigInteger(2) + Digit(0), 2);
+    EXPECT_EQ(Digit(0) + BigInteger(2), 2);
+
+    EXPECT_EQ(BigInteger(2) + Digit(2), 4);
+    EXPECT_EQ(Digit(2) + BigInteger(2), 4);
+
+    EXPECT_EQ(BigInteger(2) + Digit(8), 10);
+    EXPECT_EQ(Digit(8) + BigInteger(2), 10);
+
+    EXPECT_EQ(BigInteger(-1) + Digit(1), 0);
+    EXPECT_EQ(BigInteger("100000000000000000000000000000000000") + Digit(1), "100000000000000000000000000000000001");
+}
+
 TEST(TestAddition, AddsBigIntegersAndStrings) {
     const BigInteger two = 2;
     EXPECT_EQ(two + "2", 4);
