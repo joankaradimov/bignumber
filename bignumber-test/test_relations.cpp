@@ -2,80 +2,84 @@
 
 #include "bignumber.hpp"
 
-TEST(TestRelations, LessThan) {
-    EXPECT_LT(BigInteger(0), BigInteger(1));
-    EXPECT_LT(BigInteger(2), BigInteger(3));
-    EXPECT_LT(BigInteger("1000000000000000000000"), BigInteger("1000000000000000000001"));
-    EXPECT_LT(BigInteger(0), "1000000000000000000001");
-    EXPECT_LT(0, BigInteger("1000000000000000000001"));
+template<typename T> struct TestRelations : public testing::Test {};
+using test_types = testing::Types<uint8_t, uint16_t, uint32_t, uint64_t>;
+TYPED_TEST_CASE(TestRelations, test_types);
 
-    EXPECT_FALSE(BigInteger(0) < BigInteger(0));
-    EXPECT_FALSE(BigInteger(1) < BigInteger(0));
-    EXPECT_FALSE(BigInteger("1000000000000000000001") < BigInteger("1000000000000000000000"));
+TYPED_TEST(TestRelations, LessThan) {
+    EXPECT_LT(BigInteger<TypeParam>(0), BigInteger<TypeParam>(1));
+    EXPECT_LT(BigInteger<TypeParam>(2), BigInteger<TypeParam>(3));
+    EXPECT_LT(BigInteger<TypeParam>("1000000000000000000000"), BigInteger<TypeParam>("1000000000000000000001"));
+    EXPECT_LT(BigInteger<TypeParam>(0), "1000000000000000000001");
+    EXPECT_LT(0, BigInteger<TypeParam>("1000000000000000000001"));
+
+    EXPECT_FALSE(BigInteger<TypeParam>(0) < BigInteger<TypeParam>(0));
+    EXPECT_FALSE(BigInteger<TypeParam>(1) < BigInteger<TypeParam>(0));
+    EXPECT_FALSE(BigInteger<TypeParam>("1000000000000000000001") < BigInteger<TypeParam>("1000000000000000000000"));
 }
 
-TEST(TestRelations, LessThanWithNegative) {
-    EXPECT_LT(BigInteger(-1), BigInteger(0));
-    EXPECT_LT(BigInteger(-1), BigInteger(5));
-    EXPECT_LT(BigInteger(-1), BigInteger("10000000000000000000000000000000000000000"));
-    EXPECT_LT(BigInteger("-10000000000000000000000000000000000000000"), BigInteger(-1));
-    EXPECT_LT(BigInteger("-1000000000000000000000000000000000000000000000000000000000000000000"), BigInteger("-10000000000000000000000000000000000000000"));
+TYPED_TEST(TestRelations, LessThanWithNegative) {
+    EXPECT_LT(BigInteger<TypeParam>(-1), BigInteger<TypeParam>(0));
+    EXPECT_LT(BigInteger<TypeParam>(-1), BigInteger<TypeParam>(5));
+    EXPECT_LT(BigInteger<TypeParam>(-1), BigInteger<TypeParam>("10000000000000000000000000000000000000000"));
+    EXPECT_LT(BigInteger<TypeParam>("-10000000000000000000000000000000000000000"), BigInteger<TypeParam>(-1));
+    EXPECT_LT(BigInteger<TypeParam>("-1000000000000000000000000000000000000000000000000000000000000000000"), BigInteger<TypeParam>("-10000000000000000000000000000000000000000"));
 }
 
-TEST(TestRelations, GreaterThan) {
-    EXPECT_GT(BigInteger(1), BigInteger(0));
-    EXPECT_GT(BigInteger(3), BigInteger(2));
-    EXPECT_GT(BigInteger("1000000000000000000001"), BigInteger("1000000000000000000000"));
-    EXPECT_GT("1000000000000000000001", BigInteger(0));
-    EXPECT_GT(BigInteger("1000000000000000000001"), 0);
+TYPED_TEST(TestRelations, GreaterThan) {
+    EXPECT_GT(BigInteger<TypeParam>(1), BigInteger<TypeParam>(0));
+    EXPECT_GT(BigInteger<TypeParam>(3), BigInteger<TypeParam>(2));
+    EXPECT_GT(BigInteger<TypeParam>("1000000000000000000001"), BigInteger<TypeParam>("1000000000000000000000"));
+    EXPECT_GT("1000000000000000000001", BigInteger<TypeParam>(0));
+    EXPECT_GT(BigInteger<TypeParam>("1000000000000000000001"), 0);
 
-    EXPECT_FALSE(BigInteger(0) > BigInteger(0));
-    EXPECT_FALSE(BigInteger(0) > BigInteger(1));
-    EXPECT_FALSE(BigInteger("1000000000000000000000") > BigInteger("1000000000000000000001"));
+    EXPECT_FALSE(BigInteger<TypeParam>(0) > BigInteger<TypeParam>(0));
+    EXPECT_FALSE(BigInteger<TypeParam>(0) > BigInteger<TypeParam>(1));
+    EXPECT_FALSE(BigInteger<TypeParam>("1000000000000000000000") > BigInteger<TypeParam>("1000000000000000000001"));
 }
 
-TEST(TestRelations, LessThanOrEqual) {
-    EXPECT_LE(BigInteger(0), BigInteger(1));
-    EXPECT_LE(BigInteger(2), BigInteger(3));
-    EXPECT_LE(BigInteger(42), BigInteger(42));
-    EXPECT_LE(BigInteger("1000000000000000000000"), BigInteger("1000000000000000000000"));
-    EXPECT_LE(BigInteger("1000000000000000000000"), BigInteger("1000000000000000000001"));
-    EXPECT_LE(BigInteger(0), "1000000000000000000001");
-    EXPECT_LE(0, BigInteger("1000000000000000000001"));
+TYPED_TEST(TestRelations, LessThanOrEqual) {
+    EXPECT_LE(BigInteger<TypeParam>(0), BigInteger<TypeParam>(1));
+    EXPECT_LE(BigInteger<TypeParam>(2), BigInteger<TypeParam>(3));
+    EXPECT_LE(BigInteger<TypeParam>(42), BigInteger<TypeParam>(42));
+    EXPECT_LE(BigInteger<TypeParam>("1000000000000000000000"), BigInteger<TypeParam>("1000000000000000000000"));
+    EXPECT_LE(BigInteger<TypeParam>("1000000000000000000000"), BigInteger<TypeParam>("1000000000000000000001"));
+    EXPECT_LE(BigInteger<TypeParam>(0), "1000000000000000000001");
+    EXPECT_LE(0, BigInteger<TypeParam>("1000000000000000000001"));
 
-    EXPECT_FALSE(BigInteger(1) <= BigInteger(0));
-    EXPECT_FALSE(BigInteger("1000000000000000000001") <= BigInteger("1000000000000000000000"));
+    EXPECT_FALSE(BigInteger<TypeParam>(1) <= BigInteger<TypeParam>(0));
+    EXPECT_FALSE(BigInteger<TypeParam>("1000000000000000000001") <= BigInteger<TypeParam>("1000000000000000000000"));
 }
 
-TEST(TestRelations, GreaterThanOrEqual) {
-    EXPECT_GE(BigInteger(1), BigInteger(0));
-    EXPECT_GE(BigInteger(3), BigInteger(2));
-    EXPECT_GE(BigInteger(42), BigInteger(42));
-    EXPECT_GE(BigInteger("1000000000000000000000"), BigInteger("1000000000000000000000"));
-    EXPECT_GE(BigInteger("1000000000000000000001"), BigInteger("1000000000000000000000"));
-    EXPECT_GE("1000000000000000000001", BigInteger(0));
-    EXPECT_GE(BigInteger("1000000000000000000001"), 0);
+TYPED_TEST(TestRelations, GreaterThanOrEqual) {
+    EXPECT_GE(BigInteger<TypeParam>(1), BigInteger<TypeParam>(0));
+    EXPECT_GE(BigInteger<TypeParam>(3), BigInteger<TypeParam>(2));
+    EXPECT_GE(BigInteger<TypeParam>(42), BigInteger<TypeParam>(42));
+    EXPECT_GE(BigInteger<TypeParam>("1000000000000000000000"), BigInteger<TypeParam>("1000000000000000000000"));
+    EXPECT_GE(BigInteger<TypeParam>("1000000000000000000001"), BigInteger<TypeParam>("1000000000000000000000"));
+    EXPECT_GE("1000000000000000000001", BigInteger<TypeParam>(0));
+    EXPECT_GE(BigInteger<TypeParam>("1000000000000000000001"), 0);
 
-    EXPECT_FALSE(BigInteger(0) >= BigInteger(1));
-    EXPECT_FALSE(BigInteger("1000000000000000000000") >= BigInteger("1000000000000000000001"));
+    EXPECT_FALSE(BigInteger<TypeParam>(0) >= BigInteger<TypeParam>(1));
+    EXPECT_FALSE(BigInteger<TypeParam>("1000000000000000000000") >= BigInteger<TypeParam>("1000000000000000000001"));
 }
 
-TEST(TestRelations, Equals) {
-    EXPECT_EQ(BigInteger(0), BigInteger(0));
-    EXPECT_EQ(BigInteger("1000000000000000000000"), BigInteger("1000000000000000000000"));
-    EXPECT_EQ(BigInteger(100000000), "100000000"); // TODO: use a longer number here
-    EXPECT_EQ(100000000, BigInteger("100000000")); // TODO: use a longer number here
+TYPED_TEST(TestRelations, Equals) {
+    EXPECT_EQ(BigInteger<TypeParam>(0), BigInteger<TypeParam>(0));
+    EXPECT_EQ(BigInteger<TypeParam>("1000000000000000000000"), BigInteger<TypeParam>("1000000000000000000000"));
+    EXPECT_EQ(BigInteger<TypeParam>(100000000), "100000000"); // TODO: use a longer number here
+    EXPECT_EQ(100000000, BigInteger<TypeParam>("100000000")); // TODO: use a longer number here
 
-    EXPECT_FALSE(BigInteger(0) == BigInteger(1));
-    EXPECT_FALSE(BigInteger("1000000000000000000001") == BigInteger("1000000000000000000000"));
+    EXPECT_FALSE(BigInteger<TypeParam>(0) == BigInteger<TypeParam>(1));
+    EXPECT_FALSE(BigInteger<TypeParam>("1000000000000000000001") == BigInteger<TypeParam>("1000000000000000000000"));
 }
 
-TEST(TestRelations, NotEquals) {
-    EXPECT_NE(BigInteger(0), BigInteger(1));
-    EXPECT_NE(BigInteger("1000000000000000000000"), BigInteger("1000000000000000000001"));
-    EXPECT_NE(BigInteger(100000000), "100000001"); // TODO: use a longer number here
-    EXPECT_NE(100000000, BigInteger("100000001")); // TODO: use a longer number here
+TYPED_TEST(TestRelations, NotEquals) {
+    EXPECT_NE(BigInteger<TypeParam>(0), BigInteger<TypeParam>(1));
+    EXPECT_NE(BigInteger<TypeParam>("1000000000000000000000"), BigInteger<TypeParam>("1000000000000000000001"));
+    EXPECT_NE(BigInteger<TypeParam>(100000000), "100000001"); // TODO: use a longer number here
+    EXPECT_NE(100000000, BigInteger<TypeParam>("100000001")); // TODO: use a longer number here
 
-    EXPECT_FALSE(BigInteger(0) != BigInteger(0));
-    EXPECT_FALSE(BigInteger("1000000000000000000000") != BigInteger("1000000000000000000000"));
+    EXPECT_FALSE(BigInteger<TypeParam>(0) != BigInteger<TypeParam>(0));
+    EXPECT_FALSE(BigInteger<TypeParam>("1000000000000000000000") != BigInteger<TypeParam>("1000000000000000000000"));
 }

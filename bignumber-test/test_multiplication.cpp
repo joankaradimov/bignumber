@@ -2,13 +2,17 @@
 
 #include "bignumber.hpp"
 
-TEST(TestMultiplication, MultipliesBigIntegers) {
-    const BigInteger two = 2;
+template<typename T> struct TestMultiplication : public testing::Test {};
+using test_types = testing::Types<uint8_t, uint16_t, uint32_t, uint64_t>;
+TYPED_TEST_CASE(TestMultiplication, test_types);
+
+TYPED_TEST(TestMultiplication, MultipliesBigIntegers) {
+    const BigInteger<TypeParam> two = 2;
     EXPECT_EQ(two * two, 4);
 }
 
-TEST(TestMultiplication, MultipliesBigIntegersAndPrimitiveIntegers) {
-    const BigInteger two = 2;
+TYPED_TEST(TestMultiplication, MultipliesBigIntegersAndPrimitiveIntegers) {
+    const BigInteger<TypeParam> two = 2;
     EXPECT_EQ(two * 2, 4);
     EXPECT_EQ(2 * two, 4);
 
@@ -16,8 +20,8 @@ TEST(TestMultiplication, MultipliesBigIntegersAndPrimitiveIntegers) {
     EXPECT_EQ(5 * two, 10);
 }
 
-TEST(TestMultiplication, MultipliesBigIntegersAndStrings) {
-    const BigInteger two = 2;
+TYPED_TEST(TestMultiplication, MultipliesBigIntegersAndStrings) {
+    const BigInteger<TypeParam> two = 2;
     EXPECT_EQ(two * "2", 4);
     EXPECT_EQ("2" * two, 4);
 
@@ -25,33 +29,33 @@ TEST(TestMultiplication, MultipliesBigIntegersAndStrings) {
     EXPECT_EQ("5" * two, 10);
 }
 
-TEST(TestMultiplication, MultipliesVeryBigIntegers) {
-    const BigInteger very_long_number = "1000000000000000000000";
+TYPED_TEST(TestMultiplication, MultipliesVeryBigIntegers) {
+    const BigInteger<TypeParam> very_long_number = "1000000000000000000000";
     EXPECT_EQ(very_long_number * very_long_number, "1000000000000000000000000000000000000000000");
     EXPECT_EQ(very_long_number * "500000000000000000000000000", "500000000000000000000000000000000000000000000000");
     EXPECT_EQ("600000000000000000000000000" * very_long_number, "600000000000000000000000000000000000000000000000");
 }
 
-TEST(TestMultiplication, MultipliesAndAssignsBigIntegers) {
-    BigInteger number = 2;
+TYPED_TEST(TestMultiplication, MultipliesAndAssignsBigIntegers) {
+    BigInteger<TypeParam> number = 2;
     EXPECT_EQ(number *= number, 4);
     EXPECT_EQ(number, 4);
 }
 
-TEST(TestMultiplication, MultipliesAndAssignsBigIntegersAndPrimitiveIntegers) {
-    BigInteger number = 2;
+TYPED_TEST(TestMultiplication, MultipliesAndAssignsBigIntegersAndPrimitiveIntegers) {
+    BigInteger<TypeParam> number = 2;
     EXPECT_EQ(number *= 2, 4);
     EXPECT_EQ(number, 4);
 }
 
-TEST(TestMultiplication, MultipliesAndAssignsBigIntegersAndStrings) {
-    BigInteger number = 2;
+TYPED_TEST(TestMultiplication, MultipliesAndAssignsBigIntegersAndStrings) {
+    BigInteger<TypeParam> number = 2;
     EXPECT_EQ(number *= "2", 4);
     EXPECT_EQ(number, 4);
 }
 
-TEST(TestMultiplication, MultipliesAndAssignsVeryBigIntegers) {
-    BigInteger very_long_number = "1000000000000000000000";
+TYPED_TEST(TestMultiplication, MultipliesAndAssignsVeryBigIntegers) {
+    BigInteger<TypeParam> very_long_number = "1000000000000000000000";
     EXPECT_EQ(very_long_number *= very_long_number, "1000000000000000000000000000000000000000000");
     EXPECT_EQ(very_long_number, "1000000000000000000000000000000000000000000");
 }

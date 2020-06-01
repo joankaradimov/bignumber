@@ -266,9 +266,7 @@ template <> inline uint64_t shift_right(uint64_t high, uint64_t low, uint8_t shi
     return __shiftright128(low, high, shift);
 }
 
-typedef unsigned __int64 Digit;
-
-class BigInteger
+template <typename Digit> class BigInteger
 {
 public:
     BigInteger() : digits({ 0 }) { }
@@ -822,55 +820,55 @@ private:
     DigitBuffer<Digit> digits;
 };
 
-template <typename T> BigInteger operator+(T l, const BigInteger& r) {
+template <typename T, typename Digit> BigInteger<Digit> operator+(T l, const BigInteger<Digit>& r) {
     return r + l;
 }
 
-template <typename T> BigInteger operator-(T l, const BigInteger& r) {
+template <typename T, typename Digit> BigInteger<Digit> operator-(T l, const BigInteger<Digit>& r) {
     return (-r) + l;
 }
 
-template <typename T> BigInteger operator*(T l, const BigInteger& r) {
+template <typename T, typename Digit> BigInteger<Digit> operator*(T l, const BigInteger<Digit>& r) {
     return r * l;
 }
 
-template <typename T> BigInteger operator/(T l, const BigInteger& r) {
-    return BigInteger(l) / r;
+template <typename T, typename Digit> BigInteger<Digit> operator/(T l, const BigInteger<Digit>& r) {
+    return BigInteger<Digit>(l) / r;
 }
 
-template <typename T> BigInteger operator%(T l, const BigInteger& r) {
-    return BigInteger(l) % r;
+template <typename T, typename Digit> BigInteger<Digit> operator%(T l, const BigInteger<Digit>& r) {
+    return BigInteger<Digit>(l) % r;
 }
 
-template <typename T> bool operator<(T l, const BigInteger& r) {
+template <typename T, typename Digit> bool operator<(T l, const BigInteger<Digit>& r) {
     return r > l;
 }
 
-template <typename T> bool operator>(T l, const BigInteger& r) {
+template <typename T, typename Digit> bool operator>(T l, const BigInteger<Digit>& r) {
     return r < l;
 }
 
-template <typename T> bool operator<=(T l, const BigInteger& r) {
+template <typename T, typename Digit> bool operator<=(T l, const BigInteger<Digit>& r) {
     return r >= l;
 }
 
-template <typename T> bool operator>=(T l, const BigInteger& r) {
+template <typename T, typename Digit> bool operator>=(T l, const BigInteger<Digit>& r) {
     return r <= l;
 }
 
-template <typename T> bool operator==(T l, const BigInteger& r) {
+template <typename T, typename Digit> bool operator==(T l, const BigInteger<Digit>& r) {
     return r == l;
 }
 
-template <typename T> bool operator!=(T l, const BigInteger& r) {
+template <typename T, typename Digit> bool operator!=(T l, const BigInteger<Digit>& r) {
     return r != l;
 }
 
-template <typename T> std::basic_ostream<T>& operator<<(std::basic_ostream<T>& os, const BigInteger& number) {
+template <typename T, typename Digit> std::basic_ostream<T>& operator<<(std::basic_ostream<T>& os, const BigInteger<Digit>& number) {
     return os << std::string(number);
 }
 
-template <typename T> std::basic_istream<T>& operator>>(std::basic_istream<T>& is, BigInteger& ln) {
+template <typename T, typename Digit> std::basic_istream<T>& operator>>(std::basic_istream<T>& is, BigInteger<Digit>& ln) {
     ln = 0;
     int is_negative = false;
     T ch;
@@ -884,7 +882,7 @@ template <typename T> std::basic_istream<T>& operator>>(std::basic_istream<T>& i
     }
 
     for (;;) {
-        ln *= BigInteger::IO_BASE;
+        ln *= BigInteger<Digit>::IO_BASE;
         ln += ch - '0';
         ch = is.peek();
         if (ch < '0' || ch > '9' || isspace(ch)) break;

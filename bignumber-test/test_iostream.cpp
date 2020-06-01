@@ -2,8 +2,12 @@
 
 #include "bignumber.hpp"
 
-TEST(TestIOStream, ReadsNumbers) {
-    BigInteger number;
+template<typename T> struct TestIOStream : public testing::Test {};
+using test_types = testing::Types<uint8_t, uint16_t, uint32_t, uint64_t>;
+TYPED_TEST_CASE(TestIOStream, test_types);
+
+TYPED_TEST(TestIOStream, ReadsNumbers) {
+    BigInteger<TypeParam> number;
     std::stringstream str;    
     str << "1000 0 -1 25";
 
@@ -20,8 +24,8 @@ TEST(TestIOStream, ReadsNumbers) {
     EXPECT_EQ(number, 25);
 }
 
-TEST(TestIOStream, ReadsBigNumbers) {
-    BigInteger number;
+TYPED_TEST(TestIOStream, ReadsBigNumbers) {
+    BigInteger<TypeParam> number;
     std::stringstream str;
     str << "1000000000000000000000000000000000000000000000 -1000000000000000000000000000000000000000000000";
 
@@ -32,12 +36,12 @@ TEST(TestIOStream, ReadsBigNumbers) {
     EXPECT_EQ(number, "-1000000000000000000000000000000000000000000000");
 }
 
-TEST(TestIOStream, WritesNumbers) {
+TYPED_TEST(TestIOStream, WritesNumbers) {
     std::stringstream str;
-    BigInteger eight = 8;
-    BigInteger minus_one = -1;
-    BigInteger nonillion = "1000000000000000000000000000000";
-    BigInteger zero = 0;
+    BigInteger<TypeParam> eight = 8;
+    BigInteger<TypeParam> minus_one = -1;
+    BigInteger<TypeParam> nonillion = "1000000000000000000000000000000";
+    BigInteger<TypeParam> zero = 0;
 
     str << eight << ';' << minus_one << ';' << nonillion << ';' << zero;
 
