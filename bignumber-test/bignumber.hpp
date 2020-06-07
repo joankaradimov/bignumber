@@ -775,9 +775,9 @@ public:
         BigInteger remain = *this;
 
         for (int i = remain.digits.get_size(); i > 0; --i) {
-            auto divmod_resuilt = udivmod<Digit>(remain.digits[i], remain.digits[i - 1], r);
-            result.digits[i - 1] = divmod_resuilt.first;
-            remain.digits[i - 1] = divmod_resuilt.second;
+            auto divmod_result = udivmod<Digit>(remain.digits[i], remain.digits[i - 1], r);
+            result.digits[i - 1] = divmod_result.first;
+            remain.digits[i - 1] = divmod_result.second;
         }
         return std::pair<BigInteger, Digit>(result, remain);
     }
