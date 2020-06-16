@@ -96,7 +96,15 @@ public:
         for (unsigned i = 0; i < size; i++) {
             at(i) = other[i];
         }
-        trim();
+
+        Digit s = sign() ? ~0 : 0;
+        unsigned i;
+        for (i = 0; i < size - 1 && (*this)[size - i - 1] == s; ++i) {
+            if ((s != 0 && oldest_bit(size - i - 2) == 0) || (s == 0 && oldest_bit(size - i - 2) != 0)) {
+                break;
+            }
+        }
+        set_size(size - i);
     }
 
     ~DigitBuffer() {
@@ -145,17 +153,6 @@ public:
         else {
             return buffer[index];
         }
-    }
-
-    void trim() {
-        Digit s = sign() ? ~0 : 0;
-        unsigned i;
-        for (i = 0; i < size - 1 && (*this)[size - i - 1] == s; ++i) {
-            if ((s != 0 && oldest_bit(size - i - 2) == 0) || (s == 0 && oldest_bit(size - i - 2) != 0)) {
-                break;
-            }
-        }
-        set_size(size - i);
     }
 
     bool sign() const {
