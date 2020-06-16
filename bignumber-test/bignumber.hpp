@@ -429,15 +429,18 @@ public:
     }
 
     BigInteger operator*(const BigInteger& lnum) const {
-        // TODO: implement Karatsuba, maybe?
-        BigInteger res;
-        BigInteger l = abs();
-        BigInteger r = lnum.abs();
-        int s = digits.sign() ^ lnum.digits.sign();
-        for (unsigned i = r.digits.get_size(); i > 0; --i) {
-            res += (l * r.digits[i - 1]) << ((i - 1) * digits.BITS_PER_DIGIT);
+        if (digits.sign() && lnum.digits.sign()) {
+            return (-*this).umul(-lnum);
         }
-        return s ? -res : res;
+        else if (digits.sign()) {
+            return -lnum.umul(-*this);
+        }
+        else if (lnum.digits.sign()) {
+            return -umul(-lnum);
+        }
+        else {
+            return umul(lnum);
+        }
     }
 
     BigInteger operator*(Digit r) const {
@@ -768,6 +771,15 @@ public:
         } while (multiple);
 
         return std::pair<BigInteger, BigInteger>(result, remain);
+    }
+
+    BigInteger<Digit> umul(const BigInteger& other) const {
+        // TODO: implement Karatsuba, maybe?
+        BigInteger res;
+        for (unsigned i = other.digits.get_size(); i > 0; --i) {
+            res += (*this * other.digits[i - 1]) << ((i - 1) * digits.BITS_PER_DIGIT);
+        }
+        return res;
     }
 
     std::pair<BigInteger, Digit> divmod(Digit r) const {
