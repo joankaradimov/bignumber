@@ -5,7 +5,7 @@
 #include <intrin.h>
 #include <iostream>
 
-template <typename Digit> class DigitBuffer {
+template <typename Digit = unsigned long long> class DigitBuffer {
 private:
     struct DigitProxy {
         DigitProxy(DigitBuffer& digits_buffer, unsigned index) : digits_buffer(digits_buffer), index(index) {}
@@ -266,7 +266,7 @@ template <> inline uint64_t shift_right(uint64_t high, uint64_t low, uint8_t shi
     return __shiftright128(low, high, shift);
 }
 
-template <typename Digit> class BigInteger
+template <typename Digit = unsigned long long> class BigInteger
 {
 public:
     BigInteger() : digits({ 0 }) { }
